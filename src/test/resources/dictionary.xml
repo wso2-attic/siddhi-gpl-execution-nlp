@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (C) 2015 WSO2 Inc. (http://wso2.com)
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<dictionary>
+    <entity id="PERSON">
+        <entry>Obama</entry>
+        <entry>Kent Brantly</entry>
+		<entry>Bill Gates</entry>
+		<entry>Paul Allen</entry>
+    </entity>
+    <entity id="LOCATION">
+        <entry>Africa</entry>
+        <entry>Atlanta</entry>
+        <entry>Mississippi</entry>
+        <entry>Morocco</entry>
+    </entity>
+    <entity id="DATE">
+        <entry>yesterday</entry>
+        <entry>Tuesday</entry>
+        <entry>Today</entry>
+        <entry>September</entry>
+        <entry>Friday</entry>
+    </entity>
+    <entity id="MONEY">
+        <entry>million</entry>
+        <entry>LKR</entry>
+        <entry>USD</entry>
+    </entity>
+</dictionary>
