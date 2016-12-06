@@ -15,19 +15,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.extension.siddhi.execution.nlp;
+
+package org.wso2.extension.siddhi.gpl.execution.nlp;
 
 import edu.stanford.nlp.ling.CoreAnnotations;
+import edu.stanford.nlp.ling.tokensregex.TokenSequenceMatcher;
+import edu.stanford.nlp.ling.tokensregex.TokenSequencePattern;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
-import edu.stanford.nlp.semgraph.SemanticGraph;
-import edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations;
-import edu.stanford.nlp.semgraph.semgrex.SemgrexMatcher;
-import edu.stanford.nlp.semgraph.semgrex.SemgrexParseException;
-import edu.stanford.nlp.semgraph.semgrex.SemgrexPattern;
 import edu.stanford.nlp.util.CoreMap;
 import org.apache.log4j.Logger;
-import org.wso2.extension.siddhi.execution.nlp.utility.Constants;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
@@ -42,22 +39,19 @@ import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
-public class RelationshipByRegexStreamProcessor extends StreamProcessor {
+public class TokensRegexPatternStreamProcessor extends StreamProcessor {
 
-    private static Logger logger = Logger.getLogger(RelationshipByRegexStreamProcessor.class);
+    private static Logger logger = Logger.getLogger(TokensRegexPatternStreamProcessor.class);
 
-    /**
-     * represents {}=<word> pattern
-     * used to find named nodes
-     */
-    private static final String validationRegex = "(?:[{.*}]\\s*=\\s*)(\\w+)";
-
-    private SemgrexPattern regexPattern;
+    private static final String groupPrefix = "group_";
+    private int attributeCount;
+    private TokenSequencePattern regexPattern;
     private StanfordCoreNLP pipeline;
+
 
     private void initPipeline() {
         logger.info("Initializing Annotator pipeline ...");
@@ -76,7 +70,8 @@ public class RelationshipByRegexStreamProcessor extends StreamProcessor {
 
         if (attributeExpressionLength < 2) {
             throw new ExecutionPlanCreationException("Query expects at least two parameters. Received only " +
-                    attributeExpressionLength + ".\nUsage: #nlp.findRelationshipByRegex(regex:string, text:string-variable)");
+                    attributeExpressionLength +
+                    ".\nUsage: #nlp.findTokensRegexPattern(regex:string, text:string-variable)");
         }
 
         String regex;
@@ -85,46 +80,24 @@ public class RelationshipByRegexStreamProcessor extends StreamProcessor {
                 regex = (String) attributeExpressionExecutors[0].execute(null);
             } else {
                 throw new ExecutionPlanCreationException("First parameter should be a constant." +
-                        ".\nUsage: #nlp.findRelationshipByRegex(regex:string, text:string-variable)");
+                        ".\nUsage: #nlp.findTokensRegexPattern(regex:string, text:string-variable)");
             }
         } catch (ClassCastException e) {
             throw new ExecutionPlanCreationException("First parameter should be of type string. Found " +
                     attributeExpressionExecutors[0].getReturnType() +
-                    ".\nUsage: #nlp.findRelationshipByRegex(regex:string, text:string-variable)");
+                    ".\nUsage: #nlp.findTokensRegexPattern(regex:string, text:string-variable)");
         }
 
         try {
-            regexPattern = SemgrexPattern.compile(regex);
-        } catch (SemgrexParseException e) {
-            throw new ExecutionPlanCreationException("Cannot parse given regex: " + regex, e);
+            regexPattern = TokenSequencePattern.compile(regex);
+        } catch (Exception e) {
+            throw new ExecutionPlanCreationException("Cannot parse given regex " + regex, e);
         }
 
-        Set<String> namedNodeSet = new HashSet<String>();
-        Pattern validationPattern = Pattern.compile(validationRegex);
-        Matcher validationMatcher = validationPattern.matcher(regex);
-        while (validationMatcher.find()) {
-            //group 1 of the matcher gives the node name
-            namedNodeSet.add(validationMatcher.group(1).trim());
-        }
-
-        if (!namedNodeSet.contains(Constants.subject)) {
-            throw new ExecutionPlanCreationException("Given regex " + regex + " does not contain a named node as subject. " +
-                    "Expect a node named as {}=subject");
-        }
-
-        if (!namedNodeSet.contains(Constants.object)) {
-            throw new ExecutionPlanCreationException("Given regex " + regex + " does not contain a named node as object. " +
-                    "Expect a node named as {}=object");
-        }
-
-        if (!namedNodeSet.contains(Constants.verb)) {
-            throw new ExecutionPlanCreationException("Given regex " + regex + " does not contain a named node as verb. Expect" +
-                    " a node named as {}=verb");
-        }
 
         if (!(attributeExpressionExecutors[1] instanceof VariableExpressionExecutor)) {
             throw new ExecutionPlanCreationException("Second parameter should be a variable." +
-                    ".\nUsage: #nlp.findRelationshipByRegex(regex:string, text:string-variable)");
+                    ".\nUsage: #nlp.findTokensRegexPattern(regex:string, text:string-variable)");
         }
 
         if (logger.isDebugEnabled()) {
@@ -133,10 +106,14 @@ public class RelationshipByRegexStreamProcessor extends StreamProcessor {
         }
 
         initPipeline();
+
         ArrayList<Attribute> attributes = new ArrayList<Attribute>(1);
-        attributes.add(new Attribute(Constants.subject, Attribute.Type.STRING));
-        attributes.add(new Attribute(Constants.object, Attribute.Type.STRING));
-        attributes.add(new Attribute(Constants.verb, Attribute.Type.STRING));
+
+        attributes.add(new Attribute("match", Attribute.Type.STRING));
+        attributeCount = regexPattern.getTotalGroups();
+        for (int i = 1; i < attributeCount; i++) {
+            attributes.add(new Attribute(groupPrefix + i, Attribute.Type.STRING));
+        }
         return attributes;
     }
 
@@ -151,20 +128,14 @@ public class RelationshipByRegexStreamProcessor extends StreamProcessor {
 
                 Annotation document = pipeline.process(attributeExpressionExecutors[1].execute(streamEvent).toString());
 
-                SemgrexMatcher matcher;
-                SemanticGraph graph;
                 for (CoreMap sentence : document.get(CoreAnnotations.SentencesAnnotation.class)) {
-                    graph = sentence.get(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class);
-                    matcher = regexPattern.matcher(graph);
-
+                    TokenSequenceMatcher matcher = regexPattern.getMatcher(sentence.get(CoreAnnotations.TokensAnnotation.class));
                     while (matcher.find()) {
-                        Object[] data = new Object[3];
-                        data[0] = matcher.getNode(Constants.subject) == null ? null : matcher.getNode(Constants.subject)
-                                .word();
-                        data[1] = matcher.getNode(Constants.object) == null ? null : matcher.getNode(Constants.object)
-                                .word();
-                        data[2] = matcher.getNode(Constants.verb) == null ? null : matcher.getNode(Constants.verb)
-                                .word();
+                        Object[] data = new Object[attributeCount];
+                        data[0] = matcher.group();
+                        for (int i = 1; i < attributeCount; i++) {
+                            data[i] = matcher.group(i);
+                        }
                         StreamEvent newStreamEvent = streamEventCloner.copyStreamEvent(streamEvent);
                         complexEventPopulater.populateComplexEvent(newStreamEvent, data);
                         streamEventChunk.insertBeforeCurrent(newStreamEvent);

@@ -15,11 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.extension.siddhi.execution.nlp;
+
+package org.wso2.extension.siddhi.gpl.execution.nlp;
 
 import org.apache.log4j.Logger;
-import org.wso2.extension.siddhi.execution.nlp.dictionary.Dictionary;
-import org.wso2.extension.siddhi.execution.nlp.utility.Constants;
+import org.wso2.extension.siddhi.gpl.execution.nlp.dictionary.Dictionary;
+import org.wso2.extension.siddhi.gpl.execution.nlp.utility.Constants;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;

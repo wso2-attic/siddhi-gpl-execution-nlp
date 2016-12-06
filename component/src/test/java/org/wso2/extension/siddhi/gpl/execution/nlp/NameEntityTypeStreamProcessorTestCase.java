@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.extension.siddhi.execution.nlp;
+package org.wso2.extension.siddhi.gpl.execution.nlp;
 
 import org.apache.log4j.Logger;
 import org.junit.BeforeClass;
