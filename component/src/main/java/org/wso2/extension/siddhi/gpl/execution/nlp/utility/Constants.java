@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.extension.siddhi.execution.nlp.utility;
+package org.wso2.extension.siddhi.gpl.execution.nlp.utility;
 
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;

@@ -15,10 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.extension.siddhi.execution.nlp.dictionary;
+
+package org.wso2.extension.siddhi.gpl.execution.nlp.dictionary;
 
 import org.apache.log4j.Logger;
-import org.wso2.extension.siddhi.execution.nlp.utility.Constants;
+import org.wso2.extension.siddhi.gpl.execution.nlp.utility.Constants;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;

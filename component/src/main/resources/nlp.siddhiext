@@ -15,11 +15,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-findNameEntityType=org.wso2.extension.siddhi.execution.nlp.NameEntityTypeStreamProcessor
-findNameEntityTypeViaDictionary=org.wso2.extension.siddhi.execution.nlp.NameEntityTypeViaDictionaryStreamProcessor
-findRelationshipByRegex=org.wso2.extension.siddhi.execution.nlp.RelationshipByRegexStreamProcessor
-findRelationshipByVerb=org.wso2.extension.siddhi.execution.nlp.RelationshipByVerbStreamProcessor
-findSemgrexPattern=org.wso2.extension.siddhi.execution.nlp.SemgrexPatternStreamProcessor
-findTokensRegexPattern=org.wso2.extension.siddhi.execution.nlp.TokensRegexPatternStreamProcessor
+findNameEntityType=org.wso2.extension.siddhi.gpl.execution.nlp.NameEntityTypeStreamProcessor
+findNameEntityTypeViaDictionary=org.wso2.extension.siddhi.gpl.execution.nlp.NameEntityTypeViaDictionaryStreamProcessor
+findRelationshipByRegex=org.wso2.extension.siddhi.gpl.execution.nlp.RelationshipByRegexStreamProcessor
+findRelationshipByVerb=org.wso2.extension.siddhi.gpl.execution.nlp.RelationshipByVerbStreamProcessor
+findSemgrexPattern=org.wso2.extension.siddhi.gpl.execution.nlp.SemgrexPatternStreamProcessor
+findTokensRegexPattern=org.wso2.extension.siddhi.gpl.execution.nlp.TokensRegexPatternStreamProcessor
 
 

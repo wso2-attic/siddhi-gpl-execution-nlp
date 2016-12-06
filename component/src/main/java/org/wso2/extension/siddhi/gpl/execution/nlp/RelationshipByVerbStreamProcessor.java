@@ -15,7 +15,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.extension.siddhi.execution.nlp;
+
+package org.wso2.extension.siddhi.gpl.execution.nlp;
 
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.pipeline.Annotation;
@@ -27,6 +28,7 @@ import edu.stanford.nlp.semgraph.semgrex.SemgrexParseException;
 import edu.stanford.nlp.semgraph.semgrex.SemgrexPattern;
 import edu.stanford.nlp.util.CoreMap;
 import org.apache.log4j.Logger;
+import org.wso2.extension.siddhi.gpl.execution.nlp.utility.Constants;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
@@ -42,23 +44,26 @@ import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-public class SemgrexPatternStreamProcessor extends StreamProcessor {
+public class RelationshipByVerbStreamProcessor extends StreamProcessor {
 
-    private static Logger logger = Logger.getLogger(SemgrexPatternStreamProcessor.class);
+    private static Logger logger = Logger.getLogger(RelationshipByVerbStreamProcessor.class);
+
     /**
-     * represents =<word> pattern
-     * used to find named nodes and named relations
+     * Used to find subject, object and verb, where subject is optional
      */
-    private static final String validationRegex = "(?:\\s*=\\s*)(\\w+)";
+    private static final String verbOptSub = "{lemma:%s}=verb ?>/nsubj|agent|xsubj/ {}=subject " +
+            ">/dobj|iobj|nsubjpass/ {}=object";
+    /**
+     * Used to find subject, object and verb, where object is optional
+     */
+    private static final String verbOptObj = "{lemma:%s}=verb >/nsubj|agent|xsubj/ {}=subject " +
+            "?>/dobj|iobj|nsubjpass/ {}=object";
 
-    private int attributeCount;
-    private int inStreamParamPosition;
-    private SemgrexPattern regexPattern;
+    private SemgrexPattern verbOptSubPattern;
+    private SemgrexPattern verbOptObjPattern;
+    private String verb;
     private StanfordCoreNLP pipeline;
-    private Map<String, Integer> namedElementParamPositions = new HashMap<String, Integer>();
 
     private void initPipeline() {
         logger.info("Initializing Annotator pipeline ...");
@@ -78,60 +83,46 @@ public class SemgrexPatternStreamProcessor extends StreamProcessor {
         if (attributeExpressionLength < 2) {
             throw new ExecutionPlanCreationException("Query expects at least two parameters. Received only " +
                     attributeExpressionLength +
-                    ".\nUsage: #nlp.findSemgrexPattern(regex:string, text:string-variable)");
+                    ".\nUsage: #nlp.findRelationshipByVerb(verb:string, text:string-variable)");
         }
 
-        String regex;
+        String verb;
         try {
             if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
-                regex = (String) attributeExpressionExecutors[0].execute(null);
+                verb = (String) attributeExpressionExecutors[0].execute(null);
             } else {
                 throw new ExecutionPlanCreationException("First parameter should be a constant." +
-                        ".\nUsage: #nlp.findSemgrexPattern(regex:string, text:string-variable)");
+                        ".\nUsage: #nlp.findRelationshipByVerb(verb:string, text:string-variable)");
             }
         } catch (ClassCastException e) {
             throw new ExecutionPlanCreationException("First parameter should be of type string. Found " +
                     attributeExpressionExecutors[0].getReturnType() +
-                    ".\nUsage: #nlp.findSemgrexPattern(regex:string, text:string-variable)");
+                    ".\nUsage: #nlp.findRelationshipByVerb(verb:string, text:string-variable)");
         }
 
         try {
-            regexPattern = SemgrexPattern.compile(regex);
+            verbOptSubPattern = SemgrexPattern.compile(String.format(verbOptSub,verb));
+            verbOptObjPattern = SemgrexPattern.compile(String.format(verbOptObj,verb));
         } catch (SemgrexParseException e) {
-            throw new ExecutionPlanCreationException("Cannot parse given regex: " + regex, e);
+            throw new ExecutionPlanCreationException("First parameter is not a verb. Found " + verb +
+                    "\nUsage: #nlp.findRelationshipByVerb(verb:string, text:string-variable)");
         }
-
 
         if (!(attributeExpressionExecutors[1] instanceof VariableExpressionExecutor)) {
             throw new ExecutionPlanCreationException("Second parameter should be a variable." +
-                    ".\nUsage: #nlp.findSemgrexPattern(regex:string, text:string-variable)");
+                    ".\nUsage: #nlp.findRelationshipByVerb(verb:string, text:string-variable)");
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug(String.format("Query parameters initialized. Regex: %s Stream Parameters: %s", regex,
+            logger.debug(String.format("Query parameters initialized. verb: %s Stream Parameters: %s", verb,
                     abstractDefinition.getAttributeList()));
         }
 
         initPipeline();
-
         ArrayList<Attribute> attributes = new ArrayList<Attribute>(1);
-        attributes.add(new Attribute("match", Attribute.Type.STRING));
-
-
-        // Find all named elements in the regular expression and add them to the output stream definition attributes
-        Set<String> namedElementSet = new HashSet<String>();
-        Pattern validationPattern = Pattern.compile(validationRegex);
-        Matcher validationMatcher = validationPattern.matcher(regex);
-        while (validationMatcher.find()) {
-            //group 1 of the matcher gives the node name or the relation name
-            namedElementSet.add(validationMatcher.group(1).trim());
-        }
-
-        attributeCount = 1;
-        for (String namedElement : namedElementSet) {
-            attributes.add(new Attribute(namedElement, Attribute.Type.STRING));
-            namedElementParamPositions.put(namedElement, attributeCount++);
-        }
+        attributes.add(new Attribute(Constants.subject, Attribute.Type.STRING));
+        attributes.add(new Attribute(Constants.object, Attribute.Type.STRING));
+        attributes.add(new Attribute(Constants.verb, Attribute.Type.STRING));
         return attributes;
     }
 
@@ -140,33 +131,27 @@ public class SemgrexPatternStreamProcessor extends StreamProcessor {
         synchronized (this) {
             while (streamEventChunk.hasNext()) {
                 StreamEvent streamEvent = streamEventChunk.next();
+                if (logger.isDebugEnabled()) {
+                    logger.debug(String.format("Event received. Verb:%s Event:%s", verb, streamEvent));
+                }
 
                 Annotation document = pipeline.process(attributeExpressionExecutors[1].execute(streamEvent).toString());
 
+                Set<Event> eventSet = new HashSet<Event>();
+
                 for (CoreMap sentence : document.get(CoreAnnotations.SentencesAnnotation.class)) {
-                    SemanticGraph graph = sentence.get(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class);
-                    SemgrexMatcher matcher = regexPattern.matcher(graph);
+                    findMatchingEvents(sentence, verbOptSubPattern, eventSet);
+                    findMatchingEvents(sentence, verbOptObjPattern, eventSet);
+                }
 
-                    while (matcher.find()) {
-                        Object[] data = new Object[attributeCount];
-                        data[0] = matcher.getMatch().value();
-
-                        for (String nodeName : matcher.getNodeNames()) {
-                            if (namedElementParamPositions.containsKey(nodeName)) {
-                                data[namedElementParamPositions.get(nodeName)] = matcher.getNode(nodeName) == null
-                                        ? null : matcher.getNode(nodeName).word();
-                            }
-                        }
-
-                        for (String relationName : matcher.getRelationNames()) {
-                            if (namedElementParamPositions.containsKey(relationName)) {
-                                data[namedElementParamPositions.get(relationName)] = matcher.getRelnString(relationName);
-                            }
-                        }
-                        StreamEvent newStreamEvent = streamEventCloner.copyStreamEvent(streamEvent);
-                        complexEventPopulater.populateComplexEvent(newStreamEvent, data);
-                        streamEventChunk.insertBeforeCurrent(newStreamEvent);
-                    }
+                for (Event event : eventSet) {
+                    Object[] data = new Object[3];
+                    data[0] = event.subject;
+                    data[1] = event.object;
+                    data[2] = event.verb;
+                    StreamEvent newStreamEvent = streamEventCloner.copyStreamEvent(streamEvent);
+                    complexEventPopulater.populateComplexEvent(newStreamEvent, data);
+                    streamEventChunk.insertBeforeCurrent(newStreamEvent);
                 }
                 streamEventChunk.remove();
             }
@@ -192,5 +177,55 @@ public class SemgrexPatternStreamProcessor extends StreamProcessor {
     @Override
     public void restoreState(Object[] objects) {
 
+    }
+
+    private static final class Event{
+        String subject;
+        String object;
+        String verb;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            Event event = (Event) o;
+
+            if (object != null ? !object.equals(event.object) : event.object != null) {
+                return false;
+            }
+
+            if (subject != null ? !subject.equals(event.subject) : event.subject != null) {
+                return false;
+            }
+
+            return verb.equals(event.verb);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = subject != null ? subject.hashCode() : 0;
+            result = 31 * result + (object != null ? object.hashCode() : 0);
+            result = 31 * result + (verb != null ? verb.hashCode() : 0);
+            return result;
+        }
+    }
+    
+    private void findMatchingEvents(CoreMap sentence, SemgrexPattern pattern, Set<Event> eventSet){
+        SemanticGraph graph = sentence.get(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class);
+        SemgrexMatcher matcher = pattern.matcher(graph);
+
+        while(matcher.find()){
+            Event event = new Event();
+            event.verb = matcher.getNode(Constants.verb) == null ? null : matcher.getNode(Constants.verb).word();
+            event.subject = matcher.getNode(Constants.subject) == null ? null : matcher.getNode(Constants.subject).word();
+            event.object = matcher.getNode(Constants.object) == null ? null : matcher.getNode(Constants.object).word();
+
+            eventSet.add(event);
+        }
     }
 }
