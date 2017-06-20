@@ -25,33 +25,76 @@ import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.util.CoreMap;
 import org.apache.log4j.Logger;
 import org.wso2.extension.siddhi.gpl.execution.nlp.utility.Constants;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.annotation.Example;
+import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.util.DataType;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 
+/**
+ * Stream processor implementation for name entity.
+ */
+@Extension(
+        name = "findNameEntityType",
+        namespace = "nlp",
+        description = "Find the entities in the text.",
+        parameters = {
+                @Parameter(
+                        name = "entity.type",
+                        description = "User given string constant as entity Type. Possible Values : PERSON, " +
+                                "LOCATION, ORGANIZATION, MONEY, PERCENT, DATE or TIME",
+                        type = {DataType.STRING}
+                ),
+                @Parameter(
+                        name = "group.successive.match",
+                        description = "User given boolean constant in order to group successive matches of the " +
+                                "given entity type and a text stream.",
+                        type = {DataType.STRING}
+                ),
+                @Parameter(
+                        name = "text",
+                        description = "A string or the stream attribute which the text stream resides.",
+                        type = {DataType.STRING}
+                )
+        },
+        examples = {
+                @Example(
+                        syntax = "nlp:findNameEntityType(\"PERSON\",true,text)",
+                        description = "If text attribute contains \"Bill Gates donates £31million to fight Ebola.\" " +
+                                "result will be \"Bill Gates\". If groupSuccessiveMatch is \"false\" two events will " +
+                                "be generated as \"Bill\" and \"Gates\"."
+                )
+        }
+)
 public class NameEntityTypeStreamProcessor extends StreamProcessor {
 
     private static Logger logger = Logger.getLogger(NameEntityTypeStreamProcessor.class);
-    
+
     private Constants.EntityType entityType;
     private boolean groupSuccessiveEntities;
     private StanfordCoreNLP pipeline;
 
-    private void initPipeline() {
+    private synchronized void initPipeline() {
         logger.info("Initializing Annotator pipeline ...");
         Properties props = new Properties();
         props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse");
@@ -61,13 +104,15 @@ public class NameEntityTypeStreamProcessor extends StreamProcessor {
     }
 
     @Override
-    protected List<Attribute> init(AbstractDefinition abstractDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+    protected List<Attribute> init(AbstractDefinition inputDefinition,
+                                   ExpressionExecutor[] attributeExpressionExecutors,
+                                   ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         if (logger.isDebugEnabled()) {
             logger.debug("Initializing Query ...");
         }
 
         if (attributeExpressionLength < 3) {
-            throw new ExecutionPlanCreationException("Query expects at least three parameters. Received only " +
+            throw new SiddhiAppCreationException("Query expects at least three parameters. Received only " +
                     attributeExpressionLength +
                     ".\nUsage: #nlp:findNameEntityType(entityType:string, " +
                     "groupSuccessiveEntities:boolean, text:string-variable)");
@@ -77,23 +122,23 @@ public class NameEntityTypeStreamProcessor extends StreamProcessor {
         try {
             entityTypeParam = (attributeExpressionExecutors[0]).execute(null).toString();
         } catch (ClassCastException e) {
-            throw new ExecutionPlanCreationException("First parameter should be of type string. Found " +
+            throw new SiddhiAppCreationException("First parameter should be of type string. Found " +
                     attributeExpressionExecutors[0].getReturnType() +
                     ".\nUsage: findNameEntityType(entityType:string, " +
                     "groupSuccessiveEntities:boolean, text:string-variable)");
         }
 
         try {
-            this.entityType = Constants.EntityType.valueOf(entityTypeParam.toUpperCase());
+            this.entityType = Constants.EntityType.valueOf(entityTypeParam.toUpperCase(Locale.ENGLISH));
         } catch (IllegalArgumentException e) {
-            throw new ExecutionPlanCreationException("First parameter should be one of " + Arrays.deepToString(Constants
+            throw new SiddhiAppCreationException("First parameter should be one of " + Arrays.deepToString(Constants
                     .EntityType.values()) + ". Found " + entityTypeParam);
         }
 
         try {
             groupSuccessiveEntities = (Boolean) (attributeExpressionExecutors[1]).execute(null);
         } catch (ClassCastException e) {
-            throw new ExecutionPlanCreationException("Second parameter should be of type boolean. Found " +
+            throw new SiddhiAppCreationException("Second parameter should be of type boolean. Found " +
                     attributeExpressionExecutors[1].getReturnType() +
                     ".\nUsage: findNameEntityType(entityType:string, " +
                     "groupSuccessiveEntities:boolean, text:string-variable)");
@@ -105,7 +150,7 @@ public class NameEntityTypeStreamProcessor extends StreamProcessor {
         }
 
         if (!(attributeExpressionExecutors[2] instanceof VariableExpressionExecutor)) {
-            throw new ExecutionPlanCreationException("Third parameter should be a variable. Found " +
+            throw new SiddhiAppCreationException("Third parameter should be a variable. Found " +
                     attributeExpressionExecutors[2].getReturnType() +
                     ".\nUsage: findNameEntityType(entityType:string, " +
                     "groupSuccessiveEntities:boolean, text:string-variable)");
@@ -118,7 +163,8 @@ public class NameEntityTypeStreamProcessor extends StreamProcessor {
     }
 
     @Override
-    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
+    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
+                           StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
         synchronized (this) {
             while (streamEventChunk.hasNext()) {
                 StreamEvent event = streamEventChunk.next();
@@ -177,6 +223,7 @@ public class NameEntityTypeStreamProcessor extends StreamProcessor {
         nextProcessor.process(streamEventChunk);
     }
 
+
     @Override
     public void start() {
 
@@ -188,12 +235,12 @@ public class NameEntityTypeStreamProcessor extends StreamProcessor {
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[0];
+    public Map<String, Object> currentState() {
+        return new HashMap<>();
     }
 
     @Override
-    public void restoreState(Object[] objects) {
+    public void restoreState(Map<String, Object> state) {
 
     }
 }

@@ -25,24 +25,66 @@ import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.util.CoreMap;
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.annotation.Example;
+import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.util.DataType;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
+/**
+ * Implementation for TokensRegexPatternStreamProcessor.
+ */
+@Extension(
+        name = "findTokensRegexPattern",
+        namespace = "nlp",
+        description = "Extract subject, object and verb from the text stream that match with the named " +
+                "nodes of the Semgrex pattern.",
+        parameters = {
+                @Parameter(
+                        name = "regex",
+                        description = "User given regular expression that match the Semgrex pattern syntax.",
+                        type = {DataType.STRING}
+                ),
+                @Parameter(
+                        name = "text",
+                        description = "A string or the stream attribute which the text stream resides.",
+                        type = {DataType.STRING}
+                )
+        },
+        examples = {
+                @Example(
+                        syntax = "nlp:findTokensRegexPattern" +
+                                "('([ner:/PERSON|ORGANIZATION|LOCATION/]+) (?:[]* [lemma:donate]) ([ner:MONEY]+)'" +
+                                ", text) ",
+                        description = "Returns 4 parameters. the whole text, match as \"Paul Allen donates " +
+                                "$ 9million\", group_1 as \"Paul Allen\", group_2 as \"$ 9million\". It defines " +
+                                "three groups and the middle group is defined as a non capturing group. The first " +
+                                "group looks for words that are entities of either PERSON, ORGANIZATON or LOCATION " +
+                                "with one or more successive words matching same. Second group represents any number " +
+                                "of words followed by a word with lemmatization for donate such as donates, donated, " +
+                                "donating etc. Third looks for one or more successive entities of type MONEY."
+                )
+        }
+)
 public class TokensRegexPatternStreamProcessor extends StreamProcessor {
 
     private static Logger logger = Logger.getLogger(TokensRegexPatternStreamProcessor.class);
@@ -53,7 +95,7 @@ public class TokensRegexPatternStreamProcessor extends StreamProcessor {
     private StanfordCoreNLP pipeline;
 
 
-    private void initPipeline() {
+    private synchronized void initPipeline() {
         logger.info("Initializing Annotator pipeline ...");
         Properties props = new Properties();
         props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse");
@@ -63,13 +105,15 @@ public class TokensRegexPatternStreamProcessor extends StreamProcessor {
     }
 
     @Override
-    protected List<Attribute> init(AbstractDefinition abstractDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+    protected List<Attribute> init(AbstractDefinition inputDefinition,
+                                   ExpressionExecutor[] attributeExpressionExecutors,
+                                   ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         if (logger.isDebugEnabled()) {
             logger.debug("Initializing Query ...");
         }
 
         if (attributeExpressionLength < 2) {
-            throw new ExecutionPlanCreationException("Query expects at least two parameters. Received only " +
+            throw new SiddhiAppCreationException("Query expects at least two parameters. Received only " +
                     attributeExpressionLength +
                     ".\nUsage: #nlp.findTokensRegexPattern(regex:string, text:string-variable)");
         }
@@ -79,11 +123,11 @@ public class TokensRegexPatternStreamProcessor extends StreamProcessor {
             if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
                 regex = (String) attributeExpressionExecutors[0].execute(null);
             } else {
-                throw new ExecutionPlanCreationException("First parameter should be a constant." +
+                throw new SiddhiAppCreationException("First parameter should be a constant." +
                         ".\nUsage: #nlp.findTokensRegexPattern(regex:string, text:string-variable)");
             }
         } catch (ClassCastException e) {
-            throw new ExecutionPlanCreationException("First parameter should be of type string. Found " +
+            throw new SiddhiAppCreationException("First parameter should be of type string. Found " +
                     attributeExpressionExecutors[0].getReturnType() +
                     ".\nUsage: #nlp.findTokensRegexPattern(regex:string, text:string-variable)");
         }
@@ -91,18 +135,18 @@ public class TokensRegexPatternStreamProcessor extends StreamProcessor {
         try {
             regexPattern = TokenSequencePattern.compile(regex);
         } catch (Exception e) {
-            throw new ExecutionPlanCreationException("Cannot parse given regex " + regex, e);
+            throw new SiddhiAppCreationException("Cannot parse given regex " + regex, e);
         }
 
 
         if (!(attributeExpressionExecutors[1] instanceof VariableExpressionExecutor)) {
-            throw new ExecutionPlanCreationException("Second parameter should be a variable." +
+            throw new SiddhiAppCreationException("Second parameter should be a variable." +
                     ".\nUsage: #nlp.findTokensRegexPattern(regex:string, text:string-variable)");
         }
 
         if (logger.isDebugEnabled()) {
             logger.debug(String.format("Query parameters initialized. Regex: %s Stream Parameters: %s", regex,
-                    abstractDefinition.getAttributeList()));
+                    inputDefinition.getAttributeList()));
         }
 
         initPipeline();
@@ -118,18 +162,21 @@ public class TokensRegexPatternStreamProcessor extends StreamProcessor {
     }
 
     @Override
-    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
+    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
+                           StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
         synchronized (this) {
             while (streamEventChunk.hasNext()) {
                 StreamEvent streamEvent = streamEventChunk.next();
                 if (logger.isDebugEnabled()) {
-                    logger.debug(String.format("Event received. Regex:%s Event:%s", regexPattern.pattern(), streamEvent));
+                    logger.debug(String.format("Event received. Regex:%s Event:%s",
+                            regexPattern.pattern(), streamEvent));
                 }
 
                 Annotation document = pipeline.process(attributeExpressionExecutors[1].execute(streamEvent).toString());
 
                 for (CoreMap sentence : document.get(CoreAnnotations.SentencesAnnotation.class)) {
-                    TokenSequenceMatcher matcher = regexPattern.getMatcher(sentence.get(CoreAnnotations.TokensAnnotation.class));
+                    TokenSequenceMatcher matcher = regexPattern.getMatcher(
+                            sentence.get(CoreAnnotations.TokensAnnotation.class));
                     while (matcher.find()) {
                         Object[] data = new Object[attributeCount];
                         data[0] = matcher.group();
@@ -158,12 +205,12 @@ public class TokensRegexPatternStreamProcessor extends StreamProcessor {
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[0];
+    public Map<String, Object> currentState() {
+        return new HashMap<>();
     }
 
     @Override
-    public void restoreState(Object[] objects) {
+    public void restoreState(Map<String, Object> state) {
 
     }
 }

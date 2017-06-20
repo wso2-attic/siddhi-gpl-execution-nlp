@@ -28,30 +28,76 @@ import edu.stanford.nlp.semgraph.semgrex.SemgrexParseException;
 import edu.stanford.nlp.semgraph.semgrex.SemgrexPattern;
 import edu.stanford.nlp.util.CoreMap;
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.annotation.Example;
+import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.util.DataType;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Implementation of SemgrexPatternStreamProcessor.
+ */
+@Extension(
+        name = "findSemgrexPattern",
+        namespace = "nlp",
+        description = "Extract subject, object and verb from the text stream that match with the named " +
+                "nodes of the Semgrex pattern.",
+        parameters = {
+                @Parameter(
+                        name = "regex",
+                        description = "User given regular expression that match the Semgrex pattern syntax.",
+                        type = {DataType.STRING}
+                ),
+                @Parameter(
+                        name = "text",
+                        description = "A string or the stream attribute which the text stream resides.",
+                        type = {DataType.STRING}
+                )
+        },
+        examples = {
+                @Example(
+                        syntax = "nlp:findSemgrexPattern" +
+                                "('{lemma:die} >/.*subj|num.*/=reln {}=diedsubject', " +
+                                "\"Sierra Leone doctor dies of Ebola after failed evacuation.\") ",
+                        description = "Returns 4 parameters. the whole text, match as \"dies\", reln as " +
+                                "\"nsubj\", diedsubject as \"doctor\". This will look for words with lemmatization " +
+                                "die which are governors on any subject or numeric relation. The dependent is marked " +
+                                "as the diedsubject and the relationship is marked as reln. Thus, the query will " +
+                                "return an output stream that will out the full match of this expression, i.e the " +
+                                "governing word with lemmatization for die. In addition it will out the named node " +
+                                "diedsubject and the named relation reln for each match it find."
+                )
+        }
+)
 public class SemgrexPatternStreamProcessor extends StreamProcessor {
 
     private static Logger logger = Logger.getLogger(SemgrexPatternStreamProcessor.class);
     /**
      * represents =<word> pattern
-     * used to find named nodes and named relations
+     * used to find named nodes and named relations.
      */
     private static final String validationRegex = "(?:\\s*=\\s*)(\\w+)";
 
@@ -61,7 +107,7 @@ public class SemgrexPatternStreamProcessor extends StreamProcessor {
     private StanfordCoreNLP pipeline;
     private Map<String, Integer> namedElementParamPositions = new HashMap<String, Integer>();
 
-    private void initPipeline() {
+    private synchronized void initPipeline() {
         logger.info("Initializing Annotator pipeline ...");
         Properties props = new Properties();
         props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse");
@@ -71,13 +117,15 @@ public class SemgrexPatternStreamProcessor extends StreamProcessor {
     }
 
     @Override
-    protected List<Attribute> init(AbstractDefinition abstractDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+    protected List<Attribute> init(AbstractDefinition inputDefinition,
+                                   ExpressionExecutor[] attributeExpressionExecutors,
+                                   ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         if (logger.isDebugEnabled()) {
             logger.debug("Initializing Query ...");
         }
 
         if (attributeExpressionLength < 2) {
-            throw new ExecutionPlanCreationException("Query expects at least two parameters. Received only " +
+            throw new SiddhiAppCreationException("Query expects at least two parameters. Received only " +
                     attributeExpressionLength +
                     ".\nUsage: #nlp.findSemgrexPattern(regex:string, text:string-variable)");
         }
@@ -87,11 +135,11 @@ public class SemgrexPatternStreamProcessor extends StreamProcessor {
             if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
                 regex = (String) attributeExpressionExecutors[0].execute(null);
             } else {
-                throw new ExecutionPlanCreationException("First parameter should be a constant." +
+                throw new SiddhiAppCreationException("First parameter should be a constant." +
                         ".\nUsage: #nlp.findSemgrexPattern(regex:string, text:string-variable)");
             }
         } catch (ClassCastException e) {
-            throw new ExecutionPlanCreationException("First parameter should be of type string. Found " +
+            throw new SiddhiAppCreationException("First parameter should be of type string. Found " +
                     attributeExpressionExecutors[0].getReturnType() +
                     ".\nUsage: #nlp.findSemgrexPattern(regex:string, text:string-variable)");
         }
@@ -99,18 +147,18 @@ public class SemgrexPatternStreamProcessor extends StreamProcessor {
         try {
             regexPattern = SemgrexPattern.compile(regex);
         } catch (SemgrexParseException e) {
-            throw new ExecutionPlanCreationException("Cannot parse given regex: " + regex, e);
+            throw new SiddhiAppCreationException("Cannot parse given regex: " + regex, e);
         }
 
 
         if (!(attributeExpressionExecutors[1] instanceof VariableExpressionExecutor)) {
-            throw new ExecutionPlanCreationException("Second parameter should be a variable." +
+            throw new SiddhiAppCreationException("Second parameter should be a variable." +
                     ".\nUsage: #nlp.findSemgrexPattern(regex:string, text:string-variable)");
         }
 
         if (logger.isDebugEnabled()) {
             logger.debug(String.format("Query parameters initialized. Regex: %s Stream Parameters: %s", regex,
-                    abstractDefinition.getAttributeList()));
+                    inputDefinition.getAttributeList()));
         }
 
         initPipeline();
@@ -137,7 +185,8 @@ public class SemgrexPatternStreamProcessor extends StreamProcessor {
     }
 
     @Override
-    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
+    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
+                           StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
         synchronized (this) {
             while (streamEventChunk.hasNext()) {
                 StreamEvent streamEvent = streamEventChunk.next();
@@ -145,7 +194,8 @@ public class SemgrexPatternStreamProcessor extends StreamProcessor {
                 Annotation document = pipeline.process(attributeExpressionExecutors[1].execute(streamEvent).toString());
 
                 for (CoreMap sentence : document.get(CoreAnnotations.SentencesAnnotation.class)) {
-                    SemanticGraph graph = sentence.get(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class);
+                    SemanticGraph graph = sentence.get(
+                            SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class);
                     SemgrexMatcher matcher = regexPattern.matcher(graph);
 
                     while (matcher.find()) {
@@ -161,7 +211,8 @@ public class SemgrexPatternStreamProcessor extends StreamProcessor {
 
                         for (String relationName : matcher.getRelationNames()) {
                             if (namedElementParamPositions.containsKey(relationName)) {
-                                data[namedElementParamPositions.get(relationName)] = matcher.getRelnString(relationName);
+                                data[namedElementParamPositions.get(relationName)] =
+                                        matcher.getRelnString(relationName);
                             }
                         }
                         StreamEvent newStreamEvent = streamEventCloner.copyStreamEvent(streamEvent);
@@ -186,12 +237,12 @@ public class SemgrexPatternStreamProcessor extends StreamProcessor {
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[0];
+    public Map<String, Object> currentState() {
+        return new HashMap<>();
     }
 
     @Override
-    public void restoreState(Object[] objects) {
+    public void restoreState(Map<String, Object> state) {
 
     }
 }

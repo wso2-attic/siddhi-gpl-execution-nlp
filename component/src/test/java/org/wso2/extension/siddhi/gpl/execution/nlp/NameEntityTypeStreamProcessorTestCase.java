@@ -22,15 +22,18 @@ import org.apache.log4j.Logger;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.testng.Assert.assertEquals;
 
+/**
+ * Test case for NameEntityTypeStreamProcessor.
+ */
 public class NameEntityTypeStreamProcessorTestCase extends NlpTransformProcessorTestCase {
-    static List<String[]> data = new ArrayList<String[]>();
+    static List<String[]> data = new ArrayList<>();
     private static Logger logger = Logger.getLogger(NameEntityTypeStreamProcessorTestCase.class);
     private String defineStream = "@config(async = 'true') define stream NameEntityTypeIn (username string, " +
             "text string ); \n";
@@ -42,11 +45,14 @@ public class NameEntityTypeStreamProcessorTestCase extends NlpTransformProcessor
                 "RT @BBCAfrica: #Ghana President John Mahama, the chairman of regional body Ecowas, " +
                         "is on a one day tour of three West African countries wra…"});
         data.add(new String[]{"Surviving Jim",
-                "RT @SurvivalBasic: Woman ARRIVING in West Africa, From Morocco Tests Positive For Ebola: By Lizzie Bennett A South... …"});
+                "RT @SurvivalBasic: Woman ARRIVING in West Africa, From Morocco Tests Positive For Ebola: " +
+                        "By Lizzie Bennett A South... …"});
         data.add(new String[]{"Atlanta News",
-                "Obama to visit Atlanta Tuesday for Ebola update: President Barack Obama is scheduled Tuesday to...  #Atlanta #GA"});
+                "Obama to visit Atlanta Tuesday for Ebola update: President Barack Obama is scheduled Tuesday " +
+                        "to...  #Atlanta #GA"});
         data.add(new String[]{"Michael Chavez",
-                "Malaysia to send 20 million medical gloves to fight Ebola: Malaysia will send more than 20 million medical rub..."});
+                "Malaysia to send 20 million medical gloves to fight Ebola: Malaysia will send more than 20 " +
+                        "million medical rub..."});
         data.add(new String[]{"Professeur Jamelski",
                 "RT @DailyMirror: Bill Gates donates £ 31million to fight Ebola"});
         data.add(new String[]{"ethioembabidjan",
@@ -136,37 +142,37 @@ public class NameEntityTypeStreamProcessorTestCase extends NlpTransformProcessor
         }
     }
 
-    @Test(expectedExceptions = ExecutionPlanValidationException.class)
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
     public void testQueryCreationExceptionInvalidNoOfParams() {
         logger.info("Test: QueryCreationException at Invalid No Of Params");
-        siddhiManager.createExecutionPlanRuntime(defineStream + " from NameEntityTypeIn#nlp:findNameEntityType" +
+        siddhiManager.createSiddhiAppRuntime(defineStream + " from NameEntityTypeIn#nlp:findNameEntityType" +
                 "        ( 'PERSON', text ) \n" +
                 "        select *  \n" +
                 "        insert into FindNameEntityTypeResult;\n");
     }
 
-    @Test(expectedExceptions = ExecutionPlanValidationException.class)
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
     public void testQueryCreationExceptionEntityTypeTypeMismatch() {
         logger.info("Test: QueryCreationException at EntityType type mismatch");
-        siddhiManager.createExecutionPlanRuntime(defineStream + "from NameEntityTypeIn#nlp:findNameEntityType" +
+        siddhiManager.createSiddhiAppRuntime(defineStream + "from NameEntityTypeIn#nlp:findNameEntityType" +
                 "        ( 124 , false, text ) \n" +
                 "        select *  \n" +
                 "        insert into FindNameEntityTypeResult;\n");
     }
 
-    @Test(expectedExceptions = ExecutionPlanValidationException.class)
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
     public void testQueryCreationExceptionGroupSuccessiveEntitiesTypeMismatch() {
         logger.info("Test: QueryCreationException at GroupSuccessiveEntities type mismatch");
-        siddhiManager.createExecutionPlanRuntime(defineStream + "from NameEntityTypeIn#nlp:findNameEntityType" +
+        siddhiManager.createSiddhiAppRuntime(defineStream + "from NameEntityTypeIn#nlp:findNameEntityType" +
                 "        ( 'PERSON' , 'false', text ) \n" +
                 "        select *  \n" +
                 "        insert into FindNameEntityTypeResult;\n");
     }
 
-    @Test(expectedExceptions = ExecutionPlanValidationException.class)
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
     public void testQueryCreationExceptionUndefinedEntityType() {
         logger.info("Test: QueryCreationException at undefined EntityType");
-        siddhiManager.createExecutionPlanRuntime(defineStream + "from NameEntityTypeIn#nlp:findNameEntityType" +
+        siddhiManager.createSiddhiAppRuntime(defineStream + "from NameEntityTypeIn#nlp:findNameEntityType" +
                 "        ( 'DEGREE' , false, text ) \n" +
                 "        select *  \n" +
                 "        insert into FindNameEntityTypeResult;\n");
