@@ -49,7 +49,7 @@
         <siddhi.version>3.1.2</siddhi.version>
         <log4j.version>1.2.17.wso2v1</log4j.version>
         <stanford-nlp.version>3.6.0.wso2v1</stanford-nlp.version>
-        <junit.version>4.10</junit.version>
+        <testng.version>4.10</testng.version>
     </properties>
 
     <scm>
@@ -106,9 +106,9 @@
                 <version>${stanford-nlp.version}</version>
             </dependency>
             <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>${junit.version}</version>
+                <groupId>org.testng</groupId>
+                <artifactId>testng</artifactId>
+                <version>${testng.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>

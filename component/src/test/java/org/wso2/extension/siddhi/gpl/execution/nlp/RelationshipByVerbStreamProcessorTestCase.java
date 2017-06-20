@@ -19,20 +19,21 @@
 package org.wso2.extension.siddhi.gpl.execution.nlp;
 
 import org.apache.log4j.Logger;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
+
 
 public class RelationshipByVerbStreamProcessorTestCase extends NlpTransformProcessorTestCase {
+    static List<String[]> data = new ArrayList<String[]>();
     private static Logger logger = Logger.getLogger(RelationshipByVerbStreamProcessorTestCase.class);
     private static String defineStream = "define stream RelationshipByVerbIn(username string, text string);";
-    static List<String[]> data = new ArrayList<String[]>();
 
     @BeforeClass
     public static void loadData() throws Exception {
@@ -94,7 +95,7 @@ public class RelationshipByVerbStreamProcessorTestCase extends NlpTransformProce
         }
     }
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test(expectedExceptions = ExecutionPlanValidationException.class)
     public void testQueryCreationExceptionInvalidNoOfParams() {
         logger.info("Test: QueryCreationException at Invalid No Of Params");
         siddhiManager.createExecutionPlanRuntime(defineStream + "from RelationshipByVerbIn#nlp:findRelationshipByVerb" +
@@ -103,7 +104,7 @@ public class RelationshipByVerbStreamProcessorTestCase extends NlpTransformProce
                 "        insert into FindRelationshipByVerbResult;\n");
     }
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test(expectedExceptions = ExecutionPlanValidationException.class)
     public void testQueryCreationExceptionVerbTypeMismatch() {
         logger.info("Test: QueryCreationException at EntityType type mismatch");
         siddhiManager.createExecutionPlanRuntime(defineStream + "from RelationshipByVerbIn#nlp:findRelationshipByVerb" +

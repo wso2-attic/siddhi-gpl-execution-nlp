@@ -19,8 +19,8 @@
 package org.wso2.extension.siddhi.gpl.execution.nlp;
 
 import org.apache.log4j.Logger;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
@@ -30,9 +30,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NameEntityTypeViaDictionaryStreamProcessorTestCase extends NlpTransformProcessorTestCase {
+    static List<String[]> data = new ArrayList<String[]>();
     private static Logger logger = Logger.getLogger(NameEntityTypeViaDictionaryStreamProcessorTestCase.class);
     private static String defineStream = "define stream NameEntityTypeViaDictionaryIn (username string, text string);";
-    static List<String[]> data = new ArrayList<String[]>();
 
     @BeforeClass
     public static void loadData() {
@@ -142,7 +142,7 @@ public class NameEntityTypeViaDictionaryStreamProcessorTestCase extends NlpTrans
         assertOutput(outputEvents, expectedMatches, matchedInStreamIndices, data);
     }
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test(expectedExceptions = ExecutionPlanValidationException.class)
     public void testQueryCreationExceptionInvalidNoOfParams() {
         logger.info("Test: QueryCreationException at Invalid No Of Params");
         siddhiManager.createExecutionPlanRuntime(defineStream + "from NameEntityTypeViaDictionaryIn#nlp:findNameEntityTypeViaDictionary" +
@@ -151,7 +151,7 @@ public class NameEntityTypeViaDictionaryStreamProcessorTestCase extends NlpTrans
                 "        insert into FindNameEntityTypeViaDictionaryResult;\n");
     }
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test(expectedExceptions = ExecutionPlanValidationException.class)
     public void testQueryCreationExceptionTypeMismatchEntityType() {
         logger.info("Test: QueryCreationException at EntityType type mismatch");
         siddhiManager.createExecutionPlanRuntime(defineStream + "from NameEntityTypeViaDictionaryIn#nlp:findNameEntityTypeViaDictionary" +
@@ -160,7 +160,7 @@ public class NameEntityTypeViaDictionaryStreamProcessorTestCase extends NlpTrans
                 "        insert into FindNameEntityTypeViaDictionaryResult;\n");
     }
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test(expectedExceptions = ExecutionPlanValidationException.class)
     public void testQueryCreationExceptionInvalidFilePath() {
         logger.info("Test: QueryCreationException at Invalid file path");
         siddhiManager.createExecutionPlanRuntime(defineStream + "from NameEntityTypeViaDictionaryIn#nlp:findNameEntityTypeViaDictionary" +
@@ -170,7 +170,7 @@ public class NameEntityTypeViaDictionaryStreamProcessorTestCase extends NlpTrans
 
     }
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test(expectedExceptions = ExecutionPlanValidationException.class)
     public void testQueryCreationExceptionUndefinedEntityType() {
         logger.info("Test: QueryCreationException at undefined EntityType");
         siddhiManager.createExecutionPlanRuntime(defineStream + "from NameEntityTypeViaDictionaryIn#nlp:findNameEntityTypeViaDictionary" +

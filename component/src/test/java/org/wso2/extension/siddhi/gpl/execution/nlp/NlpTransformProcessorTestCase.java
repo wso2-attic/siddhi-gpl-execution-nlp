@@ -19,8 +19,8 @@
 package org.wso2.extension.siddhi.gpl.execution.nlp;
 
 import org.apache.log4j.Logger;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.wso2.siddhi.core.ExecutionPlanRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
@@ -30,7 +30,8 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
+
 
 public abstract class NlpTransformProcessorTestCase {
 
@@ -39,9 +40,15 @@ public abstract class NlpTransformProcessorTestCase {
 
     protected long start;
     protected long end;
+
     @BeforeClass
     public static void setUp() throws Exception {
         logger.info("Init Siddhi");
+    }
+
+    @AfterClass
+    public static void tearDown() throws Exception {
+        Thread.sleep(1000);
     }
 
     protected void generateEvents(ExecutionPlanRuntime executionPlanRuntime, String dataIn, List<String[]> data) throws Exception {
@@ -61,11 +68,6 @@ public abstract class NlpTransformProcessorTestCase {
             //Compare expected output stream text and received text
             assertEquals(data.get(inStreamIndices[i])[1], event.getData(1));
         }
-    }
-
-    @AfterClass
-    public static void tearDown() throws Exception {
-        Thread.sleep(1000);
     }
 
     protected List<Event> runQuery(String query, String queryName, String dataInStreamName, List<String[]> data) throws Exception {

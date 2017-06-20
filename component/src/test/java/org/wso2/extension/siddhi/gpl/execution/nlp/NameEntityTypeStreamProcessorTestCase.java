@@ -19,22 +19,21 @@
 package org.wso2.extension.siddhi.gpl.execution.nlp;
 
 import org.apache.log4j.Logger;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
 
 public class NameEntityTypeStreamProcessorTestCase extends NlpTransformProcessorTestCase {
+    static List<String[]> data = new ArrayList<String[]>();
     private static Logger logger = Logger.getLogger(NameEntityTypeStreamProcessorTestCase.class);
     private String defineStream = "@config(async = 'true') define stream NameEntityTypeIn (username string, " +
             "text string ); \n";
-    static List<String[]> data = new ArrayList<String[]>();
-
 
     @BeforeClass
     public static void loadData() {
@@ -137,7 +136,7 @@ public class NameEntityTypeStreamProcessorTestCase extends NlpTransformProcessor
         }
     }
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test(expectedExceptions = ExecutionPlanValidationException.class)
     public void testQueryCreationExceptionInvalidNoOfParams() {
         logger.info("Test: QueryCreationException at Invalid No Of Params");
         siddhiManager.createExecutionPlanRuntime(defineStream + " from NameEntityTypeIn#nlp:findNameEntityType" +
@@ -146,7 +145,7 @@ public class NameEntityTypeStreamProcessorTestCase extends NlpTransformProcessor
                 "        insert into FindNameEntityTypeResult;\n");
     }
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test(expectedExceptions = ExecutionPlanValidationException.class)
     public void testQueryCreationExceptionEntityTypeTypeMismatch() {
         logger.info("Test: QueryCreationException at EntityType type mismatch");
         siddhiManager.createExecutionPlanRuntime(defineStream + "from NameEntityTypeIn#nlp:findNameEntityType" +
@@ -155,7 +154,7 @@ public class NameEntityTypeStreamProcessorTestCase extends NlpTransformProcessor
                 "        insert into FindNameEntityTypeResult;\n");
     }
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test(expectedExceptions = ExecutionPlanValidationException.class)
     public void testQueryCreationExceptionGroupSuccessiveEntitiesTypeMismatch() {
         logger.info("Test: QueryCreationException at GroupSuccessiveEntities type mismatch");
         siddhiManager.createExecutionPlanRuntime(defineStream + "from NameEntityTypeIn#nlp:findNameEntityType" +
@@ -164,7 +163,7 @@ public class NameEntityTypeStreamProcessorTestCase extends NlpTransformProcessor
                 "        insert into FindNameEntityTypeResult;\n");
     }
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test(expectedExceptions = ExecutionPlanValidationException.class)
     public void testQueryCreationExceptionUndefinedEntityType() {
         logger.info("Test: QueryCreationException at undefined EntityType");
         siddhiManager.createExecutionPlanRuntime(defineStream + "from NameEntityTypeIn#nlp:findNameEntityType" +
