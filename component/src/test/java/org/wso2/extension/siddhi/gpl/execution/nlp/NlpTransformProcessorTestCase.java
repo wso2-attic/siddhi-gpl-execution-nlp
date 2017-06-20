@@ -19,9 +19,9 @@
 package org.wso2.extension.siddhi.gpl.execution.nlp;
 
 import org.apache.log4j.Logger;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.wso2.siddhi.core.ExecutionPlanRuntime;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.wso2.siddhi.core.SiddhiAppRuntime;
 import org.wso2.siddhi.core.SiddhiManager;
 import org.wso2.siddhi.core.event.Event;
 import org.wso2.siddhi.core.query.output.callback.QueryCallback;
@@ -30,8 +30,11 @@ import org.wso2.siddhi.core.stream.input.InputHandler;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
 
+/**
+ * Test case for NlpTransformProcessorTestCase.
+ */
 public abstract class NlpTransformProcessorTestCase {
 
     private static Logger logger = Logger.getLogger(NlpTransformProcessorTestCase.class);
@@ -39,19 +42,27 @@ public abstract class NlpTransformProcessorTestCase {
 
     protected long start;
     protected long end;
+
     @BeforeClass
     public static void setUp() throws Exception {
         logger.info("Init Siddhi");
     }
 
-    protected void generateEvents(ExecutionPlanRuntime executionPlanRuntime, String dataIn, List<String[]> data) throws Exception {
-        InputHandler inputHandler = executionPlanRuntime.getInputHandler(dataIn);
+    @AfterClass
+    public static void tearDown() throws Exception {
+        Thread.sleep(1000);
+    }
+
+    protected void generateEvents(SiddhiAppRuntime siddhiAppRuntime, String dataIn, List<String[]> data)
+            throws Exception {
+        InputHandler inputHandler = siddhiAppRuntime.getInputHandler(dataIn);
         for (Object[] dataLine : data) {
             inputHandler.send(dataLine);
         }
     }
 
-    protected void assertOutput(List<Event> outputEvents, String[] expectedMatches, int[] inStreamIndices, List<String[]> data) {
+    protected void assertOutput(List<Event> outputEvents, String[] expectedMatches, int[] inStreamIndices,
+                                List<String[]> data) {
         for (int i = 0; i < outputEvents.size(); i++) {
             Event event = outputEvents.get(i);
             //Compare expected output stream match and received match
@@ -63,20 +74,16 @@ public abstract class NlpTransformProcessorTestCase {
         }
     }
 
-    @AfterClass
-    public static void tearDown() throws Exception {
-        Thread.sleep(1000);
-    }
-
-    protected List<Event> runQuery(String query, String queryName, String dataInStreamName, List<String[]> data) throws Exception {
+    protected List<Event> runQuery(String query, String queryName, String dataInStreamName, List<String[]> data)
+            throws Exception {
         start = System.currentTimeMillis();
-        ExecutionPlanRuntime executionPlanRuntime = siddhiManager.createExecutionPlanRuntime(query);
+        SiddhiAppRuntime siddhiAppRuntime = siddhiManager.createSiddhiAppRuntime(query);
         end = System.currentTimeMillis();
         logger.info(String.format("Time to add query: [%f sec]", ((end - start) / 1000f)));
 
-        final List<Event> eventList = new ArrayList<Event>();
+        final List<Event> eventList = new ArrayList<>();
 
-        executionPlanRuntime.addCallback(queryName, new QueryCallback() {
+        siddhiAppRuntime.addCallback(queryName, new QueryCallback() {
             @Override
             public void receive(long timeStamp, Event[] inEvents, Event[] removeEvents) {
                 for (Event event : inEvents) {
@@ -84,8 +91,8 @@ public abstract class NlpTransformProcessorTestCase {
                 }
             }
         });
-        executionPlanRuntime.start();
-        generateEvents(executionPlanRuntime, dataInStreamName, data);
+        siddhiAppRuntime.start();
+        generateEvents(siddhiAppRuntime, dataInStreamName, data);
 
         return eventList;
     }

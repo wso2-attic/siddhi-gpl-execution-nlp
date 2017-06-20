@@ -19,20 +19,23 @@
 package org.wso2.extension.siddhi.gpl.execution.nlp;
 
 import org.apache.log4j.Logger;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
 
+/**
+ * Test case for SemgrexPatternStreamProcessor.
+ */
 public class SemgrexPatternStreamProcessorTestCase extends NlpTransformProcessorTestCase {
+    static List<String[]> data = new ArrayList<>();
     private static Logger logger = Logger.getLogger(SemgrexPatternStreamProcessorTestCase.class);
     private static String defineStream = "define stream SemgrexPatternIn(username string, text string);";
-    static List<String[]> data = new ArrayList<String[]>();
 
     @BeforeClass
     public static void loadData() throws Exception {
@@ -81,19 +84,19 @@ public class SemgrexPatternStreamProcessorTestCase extends NlpTransformProcessor
         }
     }
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
     public void testQueryCreationExceptionInvalidNoOfParams() {
         logger.info("Test: QueryCreationException at Invalid No Of Params");
-        siddhiManager.createExecutionPlanRuntime(defineStream + "from SemgrexPatternIn#nlp:findSemgrexPattern" +
+        siddhiManager.createSiddhiAppRuntime(defineStream + "from SemgrexPatternIn#nlp:findSemgrexPattern" +
                 "        ( text) \n" +
                 "        select *  \n" +
                 "        insert into FindSemgrexPatternResult;\n");
     }
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
     public void testQueryCreationExceptionRegexCannotParse() {
         logger.info("Test: QueryCreationException at Regex parsing");
-        siddhiManager.createExecutionPlanRuntime(defineStream + "from SemgrexPatternIn#nlp:findSemgrexPattern" +
+        siddhiManager.createSiddhiAppRuntime(defineStream + "from SemgrexPatternIn#nlp:findSemgrexPattern" +
                 "        ( '({}=govenor >/.*subj|agent//=reln {}=dependent)',text) \n" +
                 "        select *  \n" +
                 "        insert into FindSemgrexPatternResult;\n");

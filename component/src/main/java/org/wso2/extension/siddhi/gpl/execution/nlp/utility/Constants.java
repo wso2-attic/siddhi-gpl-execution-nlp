@@ -20,7 +20,12 @@ package org.wso2.extension.siddhi.gpl.execution.nlp.utility;
 
 import org.wso2.siddhi.query.api.expression.Expression;
 import org.wso2.siddhi.query.api.expression.Variable;
-import org.wso2.siddhi.query.api.expression.constant.*;
+import org.wso2.siddhi.query.api.expression.constant.BoolConstant;
+import org.wso2.siddhi.query.api.expression.constant.DoubleConstant;
+import org.wso2.siddhi.query.api.expression.constant.FloatConstant;
+import org.wso2.siddhi.query.api.expression.constant.IntConstant;
+import org.wso2.siddhi.query.api.expression.constant.LongConstant;
+import org.wso2.siddhi.query.api.expression.constant.StringConstant;
 
 /**
  * Created by malithi on 9/5/14.
@@ -29,11 +34,17 @@ public class Constants {
     private Constants() {
     }
 
-    public enum EntityType{
+    /**
+     * Enum for EntityType.
+     */
+    public enum EntityType {
         PERSON, LOCATION, ORGANIZATION, MONEY, PERCENT, DATE, TIME
     }
 
-    public enum DictionaryTag{
+    /**
+     * Enum for dictionaryTag.
+     */
+    public enum DictionaryTag {
         ENTITY("entity"),
         ENTRY("entry"),
         ID("id");
@@ -49,9 +60,9 @@ public class Constants {
         }
     }
 
-    public static final String subject = "subject";
-    public static final String object = "object";
-    public static final String verb = "verb";
+    public static final String SUBJECT = "subject";
+    public static final String OBJECT = "object";
+    public static final String VERB = "verb";
 
     private static final String typeBoolean = "boolean";
     private static final String typeString = "string";
@@ -62,21 +73,23 @@ public class Constants {
     private static final String typeVariable = "variable";
     private static final String typeUnknown = "unknown";
 
-    public static String getType(Expression expression){
-        if (expression instanceof BoolConstant){
+    public static String getType(Expression expression) {
+        if (expression instanceof BoolConstant) {
             return typeBoolean;
-        }else if(expression instanceof StringConstant){
-            return typeString;
-        }else if(expression instanceof IntConstant){
-            return typeInt;
-        }else if(expression instanceof DoubleConstant){
-            return typeDouble;
-        }else if(expression instanceof FloatConstant){
-            return typeFloat;
-        }else if(expression instanceof LongConstant){
-            return typeLong;
-        }else if(expression instanceof Variable){
-            return typeVariable;
+        } else {
+            if (expression instanceof StringConstant) {
+                return typeString;
+            } else if (expression instanceof IntConstant) {
+                return typeInt;
+            } else if (expression instanceof DoubleConstant) {
+                return typeDouble;
+            } else if (expression instanceof FloatConstant) {
+                return typeFloat;
+            } else if (expression instanceof LongConstant) {
+                return typeLong;
+            } else if (expression instanceof Variable) {
+                return typeVariable;
+            }
         }
 
         return typeUnknown;

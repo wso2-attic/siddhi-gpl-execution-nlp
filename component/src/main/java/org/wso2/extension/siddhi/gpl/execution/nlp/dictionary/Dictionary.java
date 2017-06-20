@@ -20,18 +20,18 @@ package org.wso2.extension.siddhi.gpl.execution.nlp.dictionary;
 
 import org.apache.log4j.Logger;
 import org.wso2.extension.siddhi.gpl.execution.nlp.utility.Constants;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.xml.sax.SAXException;
 
+import java.io.File;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import java.io.File;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * Created by malithi on 8/29/14.
@@ -49,7 +49,7 @@ public class Dictionary {
     public Dictionary(Constants.EntityType entityType, String xmlFilePath) throws Exception {
         this.entityType = entityType;
         this.xmlFilePath = xmlFilePath;
-        this.store = new HashMap<String, ArrayList<String>>();
+        this.store = new HashMap<>();
 
         init();
     }
@@ -68,7 +68,7 @@ public class Dictionary {
         try {
             schema = schemaFactory.newSchema(xsdFileUrl);
         } catch (SAXException e) {
-            throw new ExecutionPlanCreationException("Failed to build the schema.", e);
+            throw new SiddhiAppCreationException("Failed to build the schema.", e);
         }
 
         DictionaryHandler dictionaryHandler = new DictionaryHandler(entityType, this);
@@ -84,7 +84,7 @@ public class Dictionary {
 
             logger.info("Dictionary XML Parse [SUCCESS]");
         } catch (SAXException e) {
-            throw new ExecutionPlanCreationException("Failed to parse the given Dictionary XML file.", e);
+            throw new SiddhiAppCreationException("Failed to parse the given Dictionary XML file.", e);
         }
     }
 
@@ -101,7 +101,7 @@ public class Dictionary {
     public synchronized ArrayList<String> getEntries(Constants.EntityType entityType) {
         ArrayList<String> entries = store.get(entityType.name());
         if (entries == null) {
-            entries = new ArrayList<String>();
+            entries = new ArrayList<>();
             store.put(entityType.name(), entries);
         }
         return entries;

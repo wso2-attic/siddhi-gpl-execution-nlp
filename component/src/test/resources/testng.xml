@@ -1,0 +1,15 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="MonogStoreTestSuite" verbose="1">
+    <test name="MonogStoreTest">
+        <classes>
+            <class name="org.wso2.extension.siddhi.gpl.execution.nlp.NameEntityTypeStreamProcessorTestCase" />
+            <class name="org.wso2.extension.siddhi.gpl.execution.nlp.NameEntityTypeViaDictionaryStreamProcessorTestCase" />
+            <class name="org.wso2.extension.siddhi.gpl.execution.nlp.NlpTransformProcessorTestCase" />
+            <class name="org.wso2.extension.siddhi.gpl.execution.nlp.RelationshipByRegexStreamProcessorTestCase" />
+            <class name="org.wso2.extension.siddhi.gpl.execution.nlp.RelationshipByVerbStreamProcessorTestCase" />
+            <class name="org.wso2.extension.siddhi.gpl.execution.nlp.SemgrexPatternStreamProcessorTestCase" />
+            <class name="org.wso2.extension.siddhi.gpl.execution.nlp.TokensRegexPatternStreamProcessorTestCase" />
+        </classes>
+    </test>
+</suite>

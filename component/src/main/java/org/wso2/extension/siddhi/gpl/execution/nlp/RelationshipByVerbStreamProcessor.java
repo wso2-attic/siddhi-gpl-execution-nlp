@@ -29,33 +29,74 @@ import edu.stanford.nlp.semgraph.semgrex.SemgrexPattern;
 import edu.stanford.nlp.util.CoreMap;
 import org.apache.log4j.Logger;
 import org.wso2.extension.siddhi.gpl.execution.nlp.utility.Constants;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.annotation.Example;
+import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.util.DataType;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
+
+/**
+ * Implementation for RelationshipByVerbStreamProcessor.
+ */
+@Extension(
+        name = "findRelationshipByVerb",
+        namespace = "nlp",
+        description = "Extract subject, object, verb relationship for a given verb base form.",
+        parameters = {
+                @Parameter(
+                        name = "verb",
+                        description = "User given string constant for the verb base form.",
+                        type = {DataType.STRING}
+                ),
+                @Parameter(
+                        name = "text",
+                        description = "A string or the stream attribute which the text stream resides.",
+                        type = {DataType.STRING}
+                )
+        },
+        examples = {
+                @Example(
+                        syntax = "nlp:findRelationshipByVerb(\"say\", " +
+                                "\"Information just reaching us says another Liberian With Ebola " +
+                                "Arrested At Lagos Airport\")",
+                        description = "Returns 4 parameters. the whole text, subject as " +
+                                "Information, object as Liberian, verb as \"says\"."
+                )
+        }
+)
 public class RelationshipByVerbStreamProcessor extends StreamProcessor {
 
     private static Logger logger = Logger.getLogger(RelationshipByVerbStreamProcessor.class);
 
     /**
-     * Used to find subject, object and verb, where subject is optional
+     * Used to find subject, object and verb, where subject is optional.
      */
     private static final String verbOptSub = "{lemma:%s}=verb ?>/nsubj|agent|xsubj/ {}=subject " +
             ">/dobj|iobj|nsubjpass/ {}=object";
     /**
-     * Used to find subject, object and verb, where object is optional
+     * Used to find subject, object and verb, where object is optional.
      */
     private static final String verbOptObj = "{lemma:%s}=verb >/nsubj|agent|xsubj/ {}=subject " +
             "?>/dobj|iobj|nsubjpass/ {}=object";
@@ -65,7 +106,7 @@ public class RelationshipByVerbStreamProcessor extends StreamProcessor {
     private String verb;
     private StanfordCoreNLP pipeline;
 
-    private void initPipeline() {
+    private synchronized void initPipeline() {
         logger.info("Initializing Annotator pipeline ...");
         Properties props = new Properties();
         props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, parse");
@@ -75,13 +116,15 @@ public class RelationshipByVerbStreamProcessor extends StreamProcessor {
     }
 
     @Override
-    protected List<Attribute> init(AbstractDefinition abstractDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+    protected List<Attribute> init(AbstractDefinition inputDefinition,
+                                   ExpressionExecutor[] attributeExpressionExecutors,
+                                   ConfigReader configReader, SiddhiAppContext siddhiAppContext)  {
         if (logger.isDebugEnabled()) {
             logger.debug("Initializing Query ...");
         }
 
         if (attributeExpressionLength < 2) {
-            throw new ExecutionPlanCreationException("Query expects at least two parameters. Received only " +
+            throw new SiddhiAppCreationException("Query expects at least two parameters. Received only " +
                     attributeExpressionLength +
                     ".\nUsage: #nlp.findRelationshipByVerb(verb:string, text:string-variable)");
         }
@@ -91,43 +134,44 @@ public class RelationshipByVerbStreamProcessor extends StreamProcessor {
             if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
                 verb = (String) attributeExpressionExecutors[0].execute(null);
             } else {
-                throw new ExecutionPlanCreationException("First parameter should be a constant." +
+                throw new SiddhiAppCreationException("First parameter should be a constant." +
                         ".\nUsage: #nlp.findRelationshipByVerb(verb:string, text:string-variable)");
             }
         } catch (ClassCastException e) {
-            throw new ExecutionPlanCreationException("First parameter should be of type string. Found " +
+            throw new SiddhiAppCreationException("First parameter should be of type string. Found " +
                     attributeExpressionExecutors[0].getReturnType() +
                     ".\nUsage: #nlp.findRelationshipByVerb(verb:string, text:string-variable)");
         }
 
         try {
-            verbOptSubPattern = SemgrexPattern.compile(String.format(verbOptSub,verb));
-            verbOptObjPattern = SemgrexPattern.compile(String.format(verbOptObj,verb));
+            verbOptSubPattern = SemgrexPattern.compile(String.format(verbOptSub, verb));
+            verbOptObjPattern = SemgrexPattern.compile(String.format(verbOptObj, verb));
         } catch (SemgrexParseException e) {
-            throw new ExecutionPlanCreationException("First parameter is not a verb. Found " + verb +
+            throw new SiddhiAppCreationException("First parameter is not a verb. Found " + verb +
                     "\nUsage: #nlp.findRelationshipByVerb(verb:string, text:string-variable)");
         }
 
         if (!(attributeExpressionExecutors[1] instanceof VariableExpressionExecutor)) {
-            throw new ExecutionPlanCreationException("Second parameter should be a variable." +
+            throw new SiddhiAppCreationException("Second parameter should be a variable." +
                     ".\nUsage: #nlp.findRelationshipByVerb(verb:string, text:string-variable)");
         }
 
         if (logger.isDebugEnabled()) {
             logger.debug(String.format("Query parameters initialized. verb: %s Stream Parameters: %s", verb,
-                    abstractDefinition.getAttributeList()));
+                    inputDefinition.getAttributeList()));
         }
 
         initPipeline();
         ArrayList<Attribute> attributes = new ArrayList<Attribute>(1);
-        attributes.add(new Attribute(Constants.subject, Attribute.Type.STRING));
-        attributes.add(new Attribute(Constants.object, Attribute.Type.STRING));
-        attributes.add(new Attribute(Constants.verb, Attribute.Type.STRING));
+        attributes.add(new Attribute(Constants.SUBJECT, Attribute.Type.STRING));
+        attributes.add(new Attribute(Constants.OBJECT, Attribute.Type.STRING));
+        attributes.add(new Attribute(Constants.VERB, Attribute.Type.STRING));
         return attributes;
     }
 
     @Override
-    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
+    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
+                           StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
         synchronized (this) {
             while (streamEventChunk.hasNext()) {
                 StreamEvent streamEvent = streamEventChunk.next();
@@ -170,16 +214,16 @@ public class RelationshipByVerbStreamProcessor extends StreamProcessor {
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[0];
+    public Map<String, Object> currentState() {
+        return new HashMap<>();
     }
 
     @Override
-    public void restoreState(Object[] objects) {
+    public void restoreState(Map<String, Object> state) {
 
     }
 
-    private static final class Event{
+    private static final class Event {
         String subject;
         String object;
         String verb;
@@ -215,15 +259,17 @@ public class RelationshipByVerbStreamProcessor extends StreamProcessor {
         }
     }
     
-    private void findMatchingEvents(CoreMap sentence, SemgrexPattern pattern, Set<Event> eventSet){
-        SemanticGraph graph = sentence.get(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class);
+    private void findMatchingEvents(CoreMap sentence, SemgrexPattern pattern, Set<Event> eventSet) {
+        SemanticGraph graph = sentence.get(
+                SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class);
         SemgrexMatcher matcher = pattern.matcher(graph);
 
-        while(matcher.find()){
+        while (matcher.find()) {
             Event event = new Event();
-            event.verb = matcher.getNode(Constants.verb) == null ? null : matcher.getNode(Constants.verb).word();
-            event.subject = matcher.getNode(Constants.subject) == null ? null : matcher.getNode(Constants.subject).word();
-            event.object = matcher.getNode(Constants.object) == null ? null : matcher.getNode(Constants.object).word();
+            event.verb = matcher.getNode(Constants.VERB) == null ? null : matcher.getNode(Constants.VERB).word();
+            event.subject = matcher.getNode(Constants.SUBJECT) == null ? null :
+                                                            matcher.getNode(Constants.SUBJECT).word();
+            event.object = matcher.getNode(Constants.OBJECT) == null ? null : matcher.getNode(Constants.OBJECT).word();
 
             eventSet.add(event);
         }

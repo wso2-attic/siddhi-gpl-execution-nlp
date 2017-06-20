@@ -19,20 +19,23 @@
 package org.wso2.extension.siddhi.gpl.execution.nlp;
 
 import org.apache.log4j.Logger;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.query.api.exception.ExecutionPlanValidationException;
+import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
 
+/**
+ * Test case for RelationshipByRegexStreamProcessor.
+ */
 public class RelationshipByRegexStreamProcessorTestCase extends NlpTransformProcessorTestCase {
+    static List<String[]> data = new ArrayList<>();
     private static Logger logger = Logger.getLogger(RelationshipByRegexStreamProcessorTestCase.class);
     private static String defineStream = "define stream RelationshipByRegexIn(username string, text string);";
-    static List<String[]> data = new ArrayList<String[]>();
 
     @BeforeClass
     public static void loadData() throws Exception {
@@ -81,55 +84,61 @@ public class RelationshipByRegexStreamProcessorTestCase extends NlpTransformProc
         }
     }
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
     public void testQueryCreationExceptionInvalidNoOfParams() {
         logger.info("Test: QueryCreationException at Invalid No Of Params");
-        siddhiManager.createExecutionPlanRuntime(defineStream + "from RelationshipByRegexIn#nlp:findRelationshipByRegex" +
+        siddhiManager.createSiddhiAppRuntime(defineStream +
+                "from RelationshipByRegexIn#nlp:findRelationshipByRegex" +
                 "        (text) \n" +
                 "        select *  \n" +
                 "        insert into FindRelationshipByRegexResult;\n");
     }
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
     public void testQueryCreationExceptionRegexNotContainVerb() {
         logger.info("Test: QueryCreationException at Regex does not contain Verb");
-        siddhiManager.createExecutionPlanRuntime(defineStream + "from RelationshipByRegexIn#nlp:findRelationshipByRegex" +
+        siddhiManager.createSiddhiAppRuntime(defineStream +
+                "from RelationshipByRegexIn#nlp:findRelationshipByRegex" +
                 "        ( '{} >/nsubj|agent/ {}=subject ?>/dobj/ {}=object',text) \n" +
                 "        select *  \n" +
                 "        insert into FindRelationshipByRegexResult;\n");
     }
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
     public void testQueryCreationExceptionRegexNotContainSubject() {
         logger.info("Test: QueryCreationException at Regex does not contain Subject");
-        siddhiManager.createExecutionPlanRuntime(defineStream + "from RelationshipByRegexIn#nlp:findRelationshipByRegex" +
+        siddhiManager.createSiddhiAppRuntime(defineStream +
+                "from RelationshipByRegexIn#nlp:findRelationshipByRegex" +
                 "        ('{}=verb >/nsubj|agent/ {} ?>/dobj/ {}=object',text) \n" +
                 "        select *  \n" +
                 "        insert into FindRelationshipByRegexResult;\n");
     }
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
     public void testQueryCreationExceptionRegexNotContainObject() {
         logger.info("Test: QueryCreationException at Regex does not contain Object");
-        siddhiManager.createExecutionPlanRuntime(defineStream + "from RelationshipByRegexIn#nlp:findRelationshipByRegex" +
+        siddhiManager.createSiddhiAppRuntime(defineStream +
+                "from RelationshipByRegexIn#nlp:findRelationshipByRegex" +
                 "        ('{}=verb >/nsubj|agent/ {}=subject ?>/dobj/ {}',text) \n" +
                 "        select *  \n" +
                 "        insert into FindRelationshipByRegexResult;\n");
     }
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
     public void testQueryCreationExceptionCannotParseRegex() {
         logger.info("Test: QueryCreationException at Regex does not contain Object");
-        siddhiManager.createExecutionPlanRuntime(defineStream + "from RelationshipByRegexIn#nlp:findRelationshipByRegex" +
+        siddhiManager.createSiddhiAppRuntime(defineStream +
+                "from RelationshipByRegexIn#nlp:findRelationshipByRegex" +
                 "        ('{}=verb ??>/nsubj|agent/ {}=subject ?>/dobj/ {}',text) \n" +
                 "        select *  \n" +
                 "        insert into FindRelationshipByRegexResult;\n");
     }
 
-    @Test(expected = ExecutionPlanValidationException.class)
+    @Test(expectedExceptions = SiddhiAppValidationException.class)
     public void testQueryCreationExceptionRegexTypeMismatch() {
         logger.info("Test: QueryCreationException at Regex parsing");
-        siddhiManager.createExecutionPlanRuntime(defineStream + "from RelationshipByRegexIn#nlp:findRelationshipByRegex" +
+        siddhiManager.createSiddhiAppRuntime(defineStream +
+                "from RelationshipByRegexIn#nlp:findRelationshipByRegex" +
                 "        ('{}=verb >/nsubj|agent/ {}=subject ?>/dobj/ {}',text) \n" +
                 "        select *  \n" +
                 "        insert into FindRelationshipByRegexResult;\n");

@@ -21,24 +21,73 @@ package org.wso2.extension.siddhi.gpl.execution.nlp;
 import org.apache.log4j.Logger;
 import org.wso2.extension.siddhi.gpl.execution.nlp.dictionary.Dictionary;
 import org.wso2.extension.siddhi.gpl.execution.nlp.utility.Constants;
-import org.wso2.siddhi.core.config.ExecutionPlanContext;
+import org.wso2.siddhi.annotation.Example;
+import org.wso2.siddhi.annotation.Extension;
+import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.util.DataType;
+import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
 import org.wso2.siddhi.core.event.stream.StreamEvent;
 import org.wso2.siddhi.core.event.stream.StreamEventCloner;
 import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
-import org.wso2.siddhi.core.exception.ExecutionPlanCreationException;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
+import org.wso2.siddhi.core.util.config.ConfigReader;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
+/**
+ * Implementation for NameEntityTypeViaDictionaryStreamProcessor.
+ */
+@Extension(
+        name = "findNameEntityTypeViaDictionary",
+        namespace = "nlp",
+        description = "Find the entities in the text.",
+        parameters = {
+                @Parameter(
+                        name = "entity.type",
+                        description = "User given string constant as entity Type. Possible Values : PERSON, " +
+                                "LOCATION, ORGANIZATION, MONEY, PERCENT, DATE or TIME",
+                        type = {DataType.STRING}
+                ),
+                @Parameter(
+                        name = "dictionary.file.path",
+                        description = "path to the dictionary which expected entities for the entity types " +
+                                "and the dictionary should be in the following form,\n" +
+                                "<dictionary>" +
+                                "<entity id=\"PERSON\">" +
+                                "<entry>Bill</entry>" +
+                                "<entry>Addison</entry>" +
+                                "</entity>" +
+                                "</dictionary>",
+                        type = {DataType.STRING}
+                ),
+                @Parameter(
+                        name = "text",
+                        description = "A string or the stream attribute which the text stream resides.",
+                        type = {DataType.STRING}
+                )
+        },
+        examples = {
+                @Example(
+                        syntax = "nlp:findNameEntityTypeViaDictionary(\"PERSON\",\"dictionary.xml\",text)",
+                        description = "If the text attribute contains \"Bill Gates donates £31million to fight " +
+                                "Ebola\", and the dictionary consists of the above entries , the result will be " +
+                                "\"Bill\"."
+                )
+        }
+)
 public class NameEntityTypeViaDictionaryStreamProcessor extends StreamProcessor {
 
     private static Logger logger = Logger.getLogger(NameEntityTypeViaDictionaryStreamProcessor.class);
@@ -47,10 +96,12 @@ public class NameEntityTypeViaDictionaryStreamProcessor extends StreamProcessor 
     private Dictionary dictionary;
 
     @Override
-    protected List<Attribute> init(AbstractDefinition abstractDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
+    protected List<Attribute> init(AbstractDefinition inputDefinition,
+                                   ExpressionExecutor[] attributeExpressionExecutors,
+                                   ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
 
         if (attributeExpressionLength < 3) {
-            throw new ExecutionPlanCreationException("Query expects at least three parameters. Received only " +
+            throw new SiddhiAppCreationException("Query expects at least three parameters. Received only " +
                     attributeExpressionLength + ".\nUsage: #nlp:findNameEntityTypeViaDictionary(entityType:string, " +
                     "dictionaryFilePath:string, text:string-variable)");
         }
@@ -60,19 +111,19 @@ public class NameEntityTypeViaDictionaryStreamProcessor extends StreamProcessor 
             if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
                 entityTypeParam = (String) attributeExpressionExecutors[0].execute(null);
             } else {
-                throw new ExecutionPlanCreationException("First parameter should be a constant.");
+                throw new SiddhiAppCreationException("First parameter should be a constant.");
             }
         } catch (ClassCastException e) {
-            throw new ExecutionPlanCreationException("First parameter should be of type string. Found " +
+            throw new SiddhiAppCreationException("First parameter should be of type string. Found " +
                     attributeExpressionExecutors[0].getReturnType() +
                     ".\nUsage: findNameEntityTypeViaDictionary(entityType:string, " +
                     "dictionaryFilePath:string, text:string-variable");
         }
 
         try {
-            this.entityType = Constants.EntityType.valueOf(entityTypeParam.toUpperCase());
+            this.entityType = Constants.EntityType.valueOf(entityTypeParam.toUpperCase(Locale.ENGLISH));
         } catch (IllegalArgumentException e) {
-            throw new ExecutionPlanCreationException("First parameter should be one of " + Arrays.deepToString(Constants
+            throw new SiddhiAppCreationException("First parameter should be one of " + Arrays.deepToString(Constants
                     .EntityType.values()) + ". Found " + entityTypeParam);
         }
 
@@ -81,10 +132,10 @@ public class NameEntityTypeViaDictionaryStreamProcessor extends StreamProcessor 
             if (attributeExpressionExecutors[1] instanceof ConstantExpressionExecutor) {
                 dictionaryFilePath = (String) attributeExpressionExecutors[1].execute(null);
             } else {
-                throw new ExecutionPlanCreationException("Second parameter should be a constant.");
+                throw new SiddhiAppCreationException("Second parameter should be a constant.");
             }
         } catch (ClassCastException e) {
-            throw new ExecutionPlanCreationException("Second parameter should be of type string. Found " +
+            throw new SiddhiAppCreationException("Second parameter should be of type string. Found " +
                     attributeExpressionExecutors[0].getReturnType() +
                     ".\nUsage: findNameEntityTypeViaDictionary(entityType:string, " +
                     "dictionaryFilePath:string, text:string-variable");
@@ -93,11 +144,11 @@ public class NameEntityTypeViaDictionaryStreamProcessor extends StreamProcessor 
         try {
             dictionary = new Dictionary(entityType, dictionaryFilePath);
         } catch (Exception e) {
-            throw new ExecutionPlanCreationException("Failed to initialize dictionary.", e);
+            throw new SiddhiAppCreationException("Failed to initialize dictionary.", e);
         }
 
         if (!(attributeExpressionExecutors[2] instanceof VariableExpressionExecutor)) {
-            throw new ExecutionPlanCreationException("Third parameter should be a variable. Found " +
+            throw new SiddhiAppCreationException("Third parameter should be a variable. Found " +
                     attributeExpressionExecutors[2].getReturnType() +
                     ".\nUsage: findNameEntityTypeViaDictionary(entityType:string, " +
                     "dictionaryFilePath:string, text:string-variable)");
@@ -106,7 +157,7 @@ public class NameEntityTypeViaDictionaryStreamProcessor extends StreamProcessor 
         if (logger.isDebugEnabled()) {
             logger.debug(String.format("Query parameters initialized. EntityType: %s DictionaryFilePath: %s " +
                             "Stream Parameters: %s", entityTypeParam, dictionaryFilePath,
-                    abstractDefinition.getAttributeList()));
+                    inputDefinition.getAttributeList()));
         }
 
         ArrayList<Attribute> attributes = new ArrayList<Attribute>(1);
@@ -114,8 +165,10 @@ public class NameEntityTypeViaDictionaryStreamProcessor extends StreamProcessor 
         return attributes;
     }
 
+
     @Override
-    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor, StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
+    protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
+                           StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
         synchronized (this) {
             while (streamEventChunk.hasNext()) {
                 StreamEvent streamEvent = streamEventChunk.next();
@@ -146,6 +199,7 @@ public class NameEntityTypeViaDictionaryStreamProcessor extends StreamProcessor 
         nextProcessor.process(streamEventChunk);
     }
 
+
     @Override
     public void start() {
 
@@ -157,12 +211,13 @@ public class NameEntityTypeViaDictionaryStreamProcessor extends StreamProcessor 
     }
 
     @Override
-    public Object[] currentState() {
-        return new Object[0];
+    public Map<String, Object> currentState() {
+        return new HashMap<>();
     }
 
     @Override
-    public void restoreState(Object[] objects) {
+    public void restoreState(Map<String, Object> state) {
 
     }
+
 }
