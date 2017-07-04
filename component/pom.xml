@@ -59,14 +59,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <version>6.8</version>
-            <scope>test</scope>
+            <groupId>de.jollyday</groupId>
+            <artifactId>jollyday</artifactId>
         </dependency>
     </dependencies>
 
@@ -109,8 +103,13 @@
                             org.wso2.extension.siddhi.gpl.execution.nlp.*
                         </Export-Package>
                         <Import-Package>
+                            javax.xml.bind,
+                            javax.xml.bind.annotation,
                             *;resolution:=optional
                         </Import-Package>
+                        <Include-Resource>META-INF=target/classes/META-INF</Include-Resource>
+                        <DynamicImport-Package>*</DynamicImport-Package>
+                        <Embed-Dependency>jollyday;scope=compile|runtime</Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

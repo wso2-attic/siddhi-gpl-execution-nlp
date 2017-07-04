@@ -46,10 +46,11 @@
     </profiles>
 
     <properties>
-        <siddhi.version>4.0.0-M7</siddhi.version>
+        <siddhi.version>4.0.0-M9</siddhi.version>
         <log4j.version>1.2.17.wso2v1</log4j.version>
         <stanford-nlp.version>3.6.0.wso2v1</stanford-nlp.version>
-        <testng.version>4.10</testng.version>
+        <testng.version>6.11</testng.version>
+        <jollyday.version>0.5.2</jollyday.version>
     </properties>
 
     <scm>
@@ -104,6 +105,11 @@
                 <groupId>org.wso2.orbit.edu.stanford.nlp</groupId>
                 <artifactId>stanford-nlp</artifactId>
                 <version>${stanford-nlp.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.jollyday</groupId>
+                <artifactId>jollyday</artifactId>
+                <version>${jollyday.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.testng</groupId>
