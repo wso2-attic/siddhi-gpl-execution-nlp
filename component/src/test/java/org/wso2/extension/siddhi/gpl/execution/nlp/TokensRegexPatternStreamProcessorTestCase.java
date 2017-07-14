@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotEquals;
 
 /**
  * Test case for TokensRegexPatternStreamProcessor.
@@ -83,6 +84,8 @@ public class TokensRegexPatternStreamProcessorTestCase extends NlpTransformProce
             //Compare expected output stream text and received text
             assertEquals(data.get(matchedInStreamIndices[i])[1], event.getData(1));
         }
+        assertNotEquals(0, outputEvents.size(), "Returns an empty event array");
+
     }
 
     @Test(expectedExceptions = SiddhiAppValidationException.class)

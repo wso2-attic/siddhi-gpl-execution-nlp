@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotEquals;
 
 /**
  * Test case for RelationshipByRegexStreamProcessor.
@@ -58,16 +59,16 @@ public class RelationshipByRegexStreamProcessorTestCase extends NlpTransformProc
     @Test
     public void testRelationshipByRegex() throws Exception {
         //expecting subjects
-        String[] expectedSubjects = {"Gates", "Allen", "Allen", "Malaysia", "@gatesfoundation", "Ellen"};
+        String[] expectedSubjects = {"Gates", "Allen", "Allen", null, "@gatesfoundation", "Ellen"};
         //expecting objects
-        String[] expectedObjects = {"31million", "9million", "9million", "20.9", "50M", "Bags"};
+        String[] expectedObjects = {"31million", "9million", "9million", "gloves", "50M", "Bags"};
         //expecting verbs
         String[] expectedVerbs = {"donates", "donates", "donates", "donate", "donates", "Donates"};
         //InStream event index for each expected match defined above
         int[] matchedInStreamIndices = {0, 1, 2, 3, 4, 5};
 
         List<Event> outputEvents = testRelationshipByRegex(
-                "({} </compound|dobj/ ({lemma:donate}=verb >nsubj {}=subject)) >/nsubj|num/ {}=object");
+                "{lemma:donate}=verb ?>/nsubj|agent|xsubj|NNP/ {}=subject >/dobj|iobj|nsubjpass/ {}=object");
 
         for (int i = 0; i < outputEvents.size(); i++) {
             Event event = outputEvents.get(i);
@@ -82,6 +83,7 @@ public class RelationshipByRegexStreamProcessorTestCase extends NlpTransformProc
             //Compare expected output stream text and received text
             assertEquals(data.get(matchedInStreamIndices[i])[1], event.getData(1));
         }
+        assertNotEquals(0, outputEvents.size(), "Returns an empty event array");
     }
 
     @Test(expectedExceptions = SiddhiAppValidationException.class)
