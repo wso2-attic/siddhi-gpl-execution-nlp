@@ -32,6 +32,7 @@ import org.wso2.extension.siddhi.gpl.execution.nlp.utility.Constants;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -78,6 +79,28 @@ import java.util.regex.Pattern;
                         type = {DataType.STRING}
                 )
         },
+        returnAttributes = {
+                @ReturnAttribute(
+                        name = "match",
+                        description = "Entire matched text",
+                        type = {DataType.STRING}
+                ),
+                @ReturnAttribute(
+                        name = "subject",
+                        description = "Matched subject in the text",
+                        type = {DataType.STRING}
+                ),
+                @ReturnAttribute(
+                        name = "object",
+                        description = "Matched object in the text",
+                        type = {DataType.STRING}
+                ),
+                @ReturnAttribute(
+                        name = "verb",
+                        description = "Matched verb in the text",
+                        type = {DataType.STRING}
+                )
+        },
         examples = {
                 @Example(
                         syntax = "nlp:findRelationshipByRegex" +
@@ -90,14 +113,12 @@ import java.util.regex.Pattern;
 )
 public class RelationshipByRegexStreamProcessor extends StreamProcessor {
 
-    private static Logger logger = Logger.getLogger(RelationshipByRegexStreamProcessor.class);
-
     /**
      * represents {}=<word> pattern
      * used to find named nodes.
      */
     private static final String validationRegex = "(?:[{.*}]\\s*=\\s*)(\\w+)";
-
+    private static Logger logger = Logger.getLogger(RelationshipByRegexStreamProcessor.class);
     private SemgrexPattern regexPattern;
     private StanfordCoreNLP pipeline;
 
@@ -113,7 +134,7 @@ public class RelationshipByRegexStreamProcessor extends StreamProcessor {
     @Override
     protected List<Attribute> init(AbstractDefinition inputDefinition,
                                    ExpressionExecutor[] attributeExpressionExecutors,
-                                   ConfigReader configReader, SiddhiAppContext siddhiAppContext)  {
+                                   ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
         if (logger.isDebugEnabled()) {
             logger.debug("Initializing Query ...");
         }

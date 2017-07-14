@@ -32,6 +32,7 @@ import org.wso2.extension.siddhi.gpl.execution.nlp.utility.Constants;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -73,6 +74,28 @@ import java.util.Set;
                 @Parameter(
                         name = "text",
                         description = "A string or the stream attribute which the text stream resides.",
+                        type = {DataType.STRING}
+                )
+        },
+        returnAttributes = {
+                @ReturnAttribute(
+                        name = "match",
+                        description = "Entire matched text",
+                        type = {DataType.STRING}
+                ),
+                @ReturnAttribute(
+                        name = "subject",
+                        description = "Matched subject in the text",
+                        type = {DataType.STRING}
+                ),
+                @ReturnAttribute(
+                        name = "object",
+                        description = "Matched object in the text",
+                        type = {DataType.STRING}
+                ),
+                @ReturnAttribute(
+                        name = "verb",
+                        description = "Matched verb in the text",
                         type = {DataType.STRING}
                 )
         },
