@@ -28,6 +28,7 @@ import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -56,8 +57,7 @@ import java.util.Properties;
 @Extension(
         name = "findTokensRegexPattern",
         namespace = "nlp",
-        description = "Extract subject, object and verb from the text stream that match with the named " +
-                "nodes of the Semgrex pattern.",
+        description = "Extract groups (defined in the Semgrex pattern) from the text stream.",
         parameters = {
                 @Parameter(
                         name = "regex",
@@ -70,13 +70,26 @@ import java.util.Properties;
                         type = {DataType.STRING}
                 )
         },
+        returnAttributes = {
+                @ReturnAttribute(
+                        name = "match",
+                        description = "Matched whole text",
+                        type = {DataType.STRING}
+                ),
+                @ReturnAttribute(
+                        name = "groupNum1",
+                        description = "First group match of the regex. Group numbers dynamically vary with the " +
+                                "number of capturing groups in the regex pattern.",
+                        type = {DataType.STRING}
+                )
+        },
         examples = {
                 @Example(
                         syntax = "nlp:findTokensRegexPattern" +
                                 "('([ner:/PERSON|ORGANIZATION|LOCATION/]+) (?:[]* [lemma:donate]) ([ner:MONEY]+)'" +
                                 ", text) ",
-                        description = "Returns 4 parameters. the whole text, match as \"Paul Allen donates " +
-                                "$ 9million\", group_1 as \"Paul Allen\", group_2 as \"$ 9million\". It defines " +
+                        description = "Returns 3 parameters. the whole text, match as \"Paul Allen donates " +
+                                "$ 9million\", groupNum1 as \"Paul Allen\", groupNum2 as \"$ 9million\". It defines " +
                                 "three groups and the middle group is defined as a non capturing group. The first " +
                                 "group looks for words that are entities of either PERSON, ORGANIZATON or LOCATION " +
                                 "with one or more successive words matching same. Second group represents any number " +
@@ -89,7 +102,7 @@ public class TokensRegexPatternStreamProcessor extends StreamProcessor {
 
     private static Logger logger = Logger.getLogger(TokensRegexPatternStreamProcessor.class);
 
-    private static final String groupPrefix = "group_";
+    private static final String groupPrefix = "groupNum";
     private int attributeCount;
     private TokenSequencePattern regexPattern;
     private StanfordCoreNLP pipeline;

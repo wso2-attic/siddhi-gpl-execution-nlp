@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotEquals;
 
 /**
  * Test case for NlpTransformProcessorTestCase.
@@ -72,6 +73,7 @@ public abstract class NlpTransformProcessorTestCase {
             //Compare expected output stream text and received text
             assertEquals(data.get(inStreamIndices[i])[1], event.getData(1));
         }
+        assertNotEquals(0, outputEvents.size(), "Returns an empty event array");
     }
 
     protected List<Event> runQuery(String query, String queryName, String dataInStreamName, List<String[]> data)

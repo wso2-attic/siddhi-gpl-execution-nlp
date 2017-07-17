@@ -31,6 +31,7 @@ import org.apache.log4j.Logger;
 import org.wso2.siddhi.annotation.Example;
 import org.wso2.siddhi.annotation.Extension;
 import org.wso2.siddhi.annotation.Parameter;
+import org.wso2.siddhi.annotation.ReturnAttribute;
 import org.wso2.siddhi.annotation.util.DataType;
 import org.wso2.siddhi.core.config.SiddhiAppContext;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -63,8 +64,7 @@ import java.util.regex.Pattern;
 @Extension(
         name = "findSemgrexPattern",
         namespace = "nlp",
-        description = "Extract subject, object and verb from the text stream that match with the named " +
-                "nodes of the Semgrex pattern.",
+        description = "Extract named nodes (through Semgrex pattern) from the text stream.",
         parameters = {
                 @Parameter(
                         name = "regex",
@@ -77,18 +77,32 @@ import java.util.regex.Pattern;
                         type = {DataType.STRING}
                 )
         },
+        returnAttributes = {
+                @ReturnAttribute(
+                        name = "match",
+                        description = "Matched whole text",
+                        type = {DataType.STRING}
+                ),
+                @ReturnAttribute(
+                        name = "dynamicMatchName1",
+                        description = "Matched groups in the regex. Name of the return attribute will vary based on " +
+                                "the group names in the given regex",
+                        type = {DataType.STRING}
+                )
+        },
         examples = {
                 @Example(
                         syntax = "nlp:findSemgrexPattern" +
                                 "('{lemma:die} >/.*subj|num.*/=reln {}=diedsubject', " +
                                 "\"Sierra Leone doctor dies of Ebola after failed evacuation.\") ",
-                        description = "Returns 4 parameters. the whole text, match as \"dies\", reln as " +
-                                "\"nsubj\", diedsubject as \"doctor\". This will look for words with lemmatization " +
-                                "die which are governors on any subject or numeric relation. The dependent is marked " +
-                                "as the diedsubject and the relationship is marked as reln. Thus, the query will " +
-                                "return an output stream that will out the full match of this expression, i.e the " +
-                                "governing word with lemmatization for die. In addition it will out the named node " +
-                                "diedsubject and the named relation reln for each match it find."
+                        description = "Returns 3 parameters. the whole text match as \"Sierra Leone doctor dies of " +
+                                "Ebola after failed evacuation.\", reln as \"nsubj\", diedsubject as \"doctor\". " +
+                                "This will look for words with lemmatization die which are governors on any subject " +
+                                "or numeric relation. The dependent is marked as the diedsubject and the " +
+                                "relationship is marked as reln. Thus, the query will return an output stream that " +
+                                "will out the full match of this expression, i.e the governing word with " +
+                                "lemmatization for die. In addition it will out the named node diedsubject and the " +
+                                "named relation reln for each match it find."
                 )
         }
 )

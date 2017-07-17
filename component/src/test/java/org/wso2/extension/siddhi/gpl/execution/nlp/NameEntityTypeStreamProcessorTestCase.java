@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotEquals;
 
 /**
  * Test case for NameEntityTypeStreamProcessor.
@@ -140,6 +141,8 @@ public class NameEntityTypeStreamProcessorTestCase extends NlpTransformProcessor
             //Compare expected text and returned text
             assertEquals(data.get(matchedInStreamIndex[i])[1], event.getData(1));
         }
+        assertNotEquals(0, outputEvents.size(), "Returns an empty event array");
+
     }
 
     @Test(expectedExceptions = SiddhiAppValidationException.class)
