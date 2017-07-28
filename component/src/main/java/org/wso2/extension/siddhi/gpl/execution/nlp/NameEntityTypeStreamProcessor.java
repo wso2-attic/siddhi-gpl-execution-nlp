@@ -57,40 +57,40 @@ import java.util.Properties;
 @Extension(
         name = "findNameEntityType",
         namespace = "nlp",
-        description = "Find the entities in the text by the given type.",
+        description = "This extension finds the entities in the text by the given type.",
         parameters = {
                 @Parameter(
                         name = "entity.type",
-                        description = "User given string constant as entity Type. Possible Values : PERSON, " +
-                                "LOCATION, ORGANIZATION, MONEY, PERCENT, DATE or TIME",
+                        description = "The string constant given as the entity type. Possible Values : `PERSON`, " +
+                                "`LOCATION`, `ORGANIZATION`, `MONEY`, `PERCENT`, `DATE` or `TIME`",
                         type = {DataType.STRING}
                 ),
                 @Parameter(
                         name = "group.successive.match",
-                        description = "User given boolean constant in order to group successive matches of the " +
-                                "given entity type and a text stream.",
+                        description = "The boolean constant given in order to group successive matches of the given " +
+                                "entity type and a text stream.",
                         type = {DataType.BOOL}
                 ),
                 @Parameter(
                         name = "text",
-                        description = "A string or the stream attribute which the text stream resides.",
+                        description = "A string or the stream attribute in which the text stream resides.",
                         type = {DataType.STRING}
                 )
         },
         returnAttributes = {
           @ReturnAttribute(
                   name = "match",
-                  description = "Event returns a single match. If multiple matches are found multiple events are " +
-                          "returned each containing a single match.",
+                  description = "Each event returns a single match. If multiple matches are found, multiple events " +
+                          "are returned, each containing a single match.",
                   type = {DataType.STRING}
           )
         },
         examples = {
                 @Example(
                         syntax = "nlp:findNameEntityType(\"PERSON\",true,text)",
-                        description = "If text attribute contains \"Bill Gates donates £31million to fight Ebola.\" " +
-                                "result will be \"Bill Gates\". If groupSuccessiveMatch is \"false\" two events will " +
-                                "be generated as \"Bill\" and \"Gates\"."
+                        description = "If text attribute contains \"Bill Gates donates £31million to fight Ebola.\" ", +
+                                "result is \"Bill Gates\". If groupSuccessiveMatch is \"false\" two events are " +
+                                "generated as \"Bill\" and \"Gates\"."
                 )
         }
 )

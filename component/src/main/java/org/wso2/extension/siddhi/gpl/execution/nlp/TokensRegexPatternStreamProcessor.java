@@ -56,28 +56,29 @@ import java.util.Properties;
 @Extension(
         name = "findTokensRegexPattern",
         namespace = "nlp",
-        description = "Extract groups (defined in the Semgrex pattern) from the text stream.",
+        description = "This extension extracts groups (defined in the Semgrex pattern) from the text stream.",
         parameters = {
                 @Parameter(
                         name = "regex",
-                        description = "User given regular expression that match the Semgrex pattern syntax.",
+                        description = "In this parameter, specify the regular expression that matches the Semgrex " +
+                                "pattern syntax.",
                         type = {DataType.STRING}
                 ),
                 @Parameter(
                         name = "text",
-                        description = "A string or the stream attribute which the text stream resides.",
+                        description = "A string or the stream attribute in which the text stream resides.",
                         type = {DataType.STRING}
                 )
         },
         returnAttributes = {
                 @ReturnAttribute(
                         name = "match",
-                        description = "Matched whole text",
+                        description = "The entire matched text.",
                         type = {DataType.STRING}
                 ),
                 @ReturnAttribute(
                         name = "groupNum1",
-                        description = "First group match of the regex. Group numbers dynamically vary with the " +
+                        description = "First group match of the regex. Group numbers vary dynamically with the " +
                                 "number of capturing groups in the regex pattern.",
                         type = {DataType.STRING}
                 )
@@ -87,13 +88,14 @@ import java.util.Properties;
                         syntax = "nlp:findTokensRegexPattern" +
                                 "('([ner:/PERSON|ORGANIZATION|LOCATION/]+) (?:[]* [lemma:donate]) ([ner:MONEY]+)'" +
                                 ", text) ",
-                        description = "Returns 3 parameters. the whole text, match as \"Paul Allen donates " +
-                                "$ 9million\", groupNum1 as \"Paul Allen\", groupNum2 as \"$ 9million\". It defines " +
-                                "three groups and the middle group is defined as a non capturing group. The first " +
-                                "group looks for words that are entities of either PERSON, ORGANIZATON or LOCATION " +
-                                "with one or more successive words matching same. Second group represents any number " +
-                                "of words followed by a word with lemmatization for donate such as donates, donated, " +
-                                "donating etc. Third looks for one or more successive entities of type MONEY."
+                        description = "This returns 3 parameters: the whole text, \"Paul Allen donates " +
+                                "$ 9million\" as the match, \"Paul Allen\" as the group number, and \"$ 9million\" " +
+                                "as group number 2. It defines three groups, and the middle group is defined as a " +
+                                "non-capturing group. The first group looks for words that are entities of either" +
+                                "`PERSON`, `ORGANIZATON` or `LOCATION` with one or more successive words matching the" +
+                                " same. The second group represents any number of words that are followed by a word" +
+                                " with a lemmatization for donate such as `donates`, `donated`, `donating` etc. The " +
+                                "third looks for one or more successive entities of the `MONEY` type."
                 )
         }
 )
