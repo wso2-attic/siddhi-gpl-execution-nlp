@@ -64,39 +64,40 @@ import java.util.regex.Pattern;
 @Extension(
         name = "findRelationshipByRegex",
         namespace = "nlp",
-        description = "Extract subject, object and verb from the text stream that match with the named nodes " +
-                "of the Semgrex pattern.",
+        description = "This extension extracts subject, object and verb from the text stream that matches the named " +
+                "nodes of the Semgrex pattern.",
         parameters = {
                 @Parameter(
                         name = "regex",
-                        description = "User given regular expression that match the Semgrex pattern syntax.",
+                        description = "In this parameter, specify the regular expression that matches the Semgrex " +
+                                "pattern syntax.",
                         type = {DataType.STRING}
                 ),
                 @Parameter(
                         name = "text",
-                        description = "A string or the stream attribute which the text stream resides.",
+                        description = "The string or the stream attribute in which the text stream resides.",
                         type = {DataType.STRING}
                 )
         },
         returnAttributes = {
                 @ReturnAttribute(
                         name = "match",
-                        description = "Entire matched text",
+                        description = "The entire matched text.",
                         type = {DataType.STRING}
                 ),
                 @ReturnAttribute(
                         name = "subject",
-                        description = "Matched subject in the text",
+                        description = "The matched subject in the text.",
                         type = {DataType.STRING}
                 ),
                 @ReturnAttribute(
                         name = "object",
-                        description = "Matched object in the text",
+                        description = "The matched object in the text.",
                         type = {DataType.STRING}
                 ),
                 @ReturnAttribute(
                         name = "verb",
-                        description = "Matched verb in the text",
+                        description = "The matched verb in the text.",
                         type = {DataType.STRING}
                 )
         },
@@ -105,8 +106,8 @@ import java.util.regex.Pattern;
                         syntax = "nlp:findRelationshipByRegex" +
                                 "('{}=verb >/nsubj|agent/ {}=subject >/dobj/ {}=object', " +
                                 "\"gates foundation donates $50M in support of #Ebola relief\")",
-                        description = "Returns 4 parameters. the whole text, subject as \"foundation\", " +
-                                "object as \"$\", verb as \"donates\"."
+                        description = "This returns 4 parameters: the whole text, \"foundation\" as the subject, " +
+                                "\"$\" as the object, and \"donates\" as the verb."
                 )
         }
 )

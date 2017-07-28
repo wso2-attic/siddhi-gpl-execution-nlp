@@ -63,38 +63,38 @@ import java.util.Set;
 @Extension(
         name = "findRelationshipByVerb",
         namespace = "nlp",
-        description = "Extract subject, object, verb relationship for a given verb base form.",
+        description = "This extension extracts the subject, object, and verb relationship for a given verb base form.",
         parameters = {
                 @Parameter(
                         name = "verb",
-                        description = "User given string constant for the verb base form.",
+                        description = "In this parameter, specify the string constant for the verb base form.",
                         type = {DataType.STRING}
                 ),
                 @Parameter(
                         name = "text",
-                        description = "A string or the stream attribute which the text stream resides.",
+                        description = "A string or the stream attribute in which the text stream resides.",
                         type = {DataType.STRING}
                 )
         },
         returnAttributes = {
                 @ReturnAttribute(
                         name = "match",
-                        description = "Entire matched text",
+                        description = "The entire matched text.",
                         type = {DataType.STRING}
                 ),
                 @ReturnAttribute(
                         name = "subject",
-                        description = "Matched subject in the text",
+                        description = "The matched subject in the text.",
                         type = {DataType.STRING}
                 ),
                 @ReturnAttribute(
                         name = "object",
-                        description = "Matched object in the text",
+                        description = "The matched object in the text.",
                         type = {DataType.STRING}
                 ),
                 @ReturnAttribute(
                         name = "verb",
-                        description = "Matched verb in the text",
+                        description = "The matched verb in the text.",
                         type = {DataType.STRING}
                 )
         },
@@ -103,8 +103,8 @@ import java.util.Set;
                         syntax = "nlp:findRelationshipByVerb(\"say\", " +
                                 "\"Information just reaching us says another Liberian With Ebola " +
                                 "Arrested At Lagos Airport\")",
-                        description = "Returns 4 parameters. the whole text, subject as " +
-                                "Information, object as Liberian, verb as \"says\"."
+                        description = "This returns 4 parameters: the whole text, `Information` as the subject, " +
+                                "`Liberian` as the object and \"says\" as the verb."
                 )
         }
 )

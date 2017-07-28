@@ -53,18 +53,18 @@ import java.util.Map;
 @Extension(
         name = "findNameEntityTypeViaDictionary",
         namespace = "nlp",
-        description = "Find the entities in the text which has been defined in the dictionary.",
+        description = "This extension finds the entities in the text that have been defined in the dictionary.",
         parameters = {
                 @Parameter(
                         name = "entity.type",
-                        description = "User given string constant as entity Type. Possible Values : PERSON, " +
-                                "LOCATION, ORGANIZATION, MONEY, PERCENT, DATE or TIME",
+                        description = "The string constant given as the entity type. Possible Values : `PERSON`, " +
+                                "`LOCATION`, `ORGANIZATION`, `MONEY`, `PERCENT`, `DATE` or `TIME`",
                         type = {DataType.STRING}
                 ),
                 @Parameter(
                         name = "dictionary.file.path",
-                        description = "path to the dictionary which expected entities for the entity types " +
-                                "and the dictionary should be in the following form,\n" +
+                        description = "The path to the dictionary where the expected entities for the entity types " +
+                                "and the dictionary should exist in the following form,\n" +
                                 "<dictionary>" +
                                 "<entity id=\"PERSON\">" +
                                 "<entry>Bill</entry>" +
@@ -75,15 +75,15 @@ import java.util.Map;
                 ),
                 @Parameter(
                         name = "text",
-                        description = "A string or the stream attribute which the text stream resides.",
+                        description = "A string or the stream attribute in which the text stream resides.",
                         type = {DataType.STRING}
                 )
         },
         returnAttributes = {
                 @ReturnAttribute(
                         name = "match",
-                        description = "Event returns a single match. If multiple matches are found multiple events " +
-                                "are returned each containing a single match.",
+                        description = " Each event returns a single match. If multiple matches are found, multiple" +
+                                " events are returned, each containing a single match.",
                         type = {DataType.STRING}
                 )
         },
@@ -91,8 +91,7 @@ import java.util.Map;
                 @Example(
                         syntax = "nlp:findNameEntityTypeViaDictionary(\"PERSON\",\"dictionary.xml\",text)",
                         description = "If the text attribute contains \"Bill Gates donates £31million to fight " +
-                                "Ebola\", and the dictionary consists of the above entries , the result will be " +
-                                "\"Bill\"."
+                                "Ebola\", and the dictionary consists of the above entries, the result is " \"Bill\"."
                 )
         }
 )

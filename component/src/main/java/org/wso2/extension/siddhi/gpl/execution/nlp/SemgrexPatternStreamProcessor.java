@@ -63,29 +63,30 @@ import java.util.regex.Pattern;
 @Extension(
         name = "findSemgrexPattern",
         namespace = "nlp",
-        description = "Extract named nodes (through Semgrex pattern) from the text stream.",
+        description = "This extension extracts named nodes (through the Semgrex pattern) from the text stream.",
         parameters = {
                 @Parameter(
                         name = "regex",
-                        description = "User given regular expression that match the Semgrex pattern syntax.",
+                        description = "In this parameter, specify the regular expression that matches the Semgrex " +
+                                "pattern syntax.",
                         type = {DataType.STRING}
                 ),
                 @Parameter(
                         name = "text",
-                        description = "A string or the stream attribute which the text stream resides.",
+                        description = "A string or the stream attribute in which the text stream resides.",
                         type = {DataType.STRING}
                 )
         },
         returnAttributes = {
                 @ReturnAttribute(
                         name = "match",
-                        description = "Matched whole text",
+                        description = "The entire matched text.",
                         type = {DataType.STRING}
                 ),
                 @ReturnAttribute(
                         name = "dynamicMatchName1",
-                        description = "Matched groups in the regex. Name of the return attribute will vary based on " +
-                                "the group names in the given regex",
+                        description = "The matched groups in the regex. The name of the return attribute varies " +
+                                "based on the group names in the given regex.",
                         type = {DataType.STRING}
                 )
         },
@@ -94,14 +95,14 @@ import java.util.regex.Pattern;
                         syntax = "nlp:findSemgrexPattern" +
                                 "('{lemma:die} >/.*subj|num.*/=reln {}=diedsubject', " +
                                 "\"Sierra Leone doctor dies of Ebola after failed evacuation.\") ",
-                        description = "Returns 3 parameters. the whole text match as \"Sierra Leone doctor dies of " +
-                                "Ebola after failed evacuation.\", reln as \"nsubj\", diedsubject as \"doctor\". " +
-                                "This will look for words with lemmatization die which are governors on any subject " +
-                                "or numeric relation. The dependent is marked as the diedsubject and the " +
-                                "relationship is marked as reln. Thus, the query will return an output stream that " +
-                                "will out the full match of this expression, i.e the governing word with " +
-                                "lemmatization for die. In addition it will out the named node diedsubject and the " +
-                                "named relation reln for each match it find."
+                        description = "This returns 3 parameters:  \"Sierra Leone doctor dies of Ebola after failed" +
+                                " evacuation.\" as the `whole text match`, \"nsubj\" as `reln`,  and \"doctor\" as " +
+                                "`diedsubject`. This looks for words with lemmetizations for `die` that are " +
+                                "governors on any subject or numeric relation. The dependent is marked as the " +
+                                "`diedsubject` and the relationship is marked as `reln`. Thus, the query returns an " +
+                                "output stream that outputs the full match of this expression, i.e the governing word" +
+                                " with the lemmatization for `die`. In addition, it outputs the `diedsubject` named" +
+                                " node and the `reln` named relation for each match it finds."
                 )
         }
 )
