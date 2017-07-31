@@ -91,7 +91,7 @@ import java.util.Map;
                 @Example(
                         syntax = "nlp:findNameEntityTypeViaDictionary(\"PERSON\",\"dictionary.xml\",text)",
                         description = "If the text attribute contains \"Bill Gates donates £31million to fight " +
-                                "Ebola\", and the dictionary consists of the above entries, the result is " \"Bill\"."
+                                "Ebola\", and the dictionary consists of the above entries, the result is \"Bill\"."
                 )
         }
 )
