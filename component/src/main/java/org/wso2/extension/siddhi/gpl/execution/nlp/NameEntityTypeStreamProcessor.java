@@ -88,7 +88,7 @@ import java.util.Properties;
         examples = {
                 @Example(
                         syntax = "nlp:findNameEntityType(\"PERSON\",true,text)",
-                        description = "If text attribute contains \"Bill Gates donates £31million to fight Ebola.\" ", +
+                        description = "If text attribute contains \"Bill Gates donates £31million to fight Ebola.\", " +
                                 "result is \"Bill Gates\". If groupSuccessiveMatch is \"false\" two events are " +
                                 "generated as \"Bill\" and \"Gates\"."
                 )
