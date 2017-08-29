@@ -1,33 +1,76 @@
-Siddhi-gpl-execution-nlp
+siddhi-gpl-execution-nlp
 ======================================
 
-This is an extension for nlp processing. 
+The **siddhi-gpl-execution-nlp extension** is an extension to <a target="_blank" href="https://wso2.github.io/siddhi">Siddhi
+</a> that  can be used to process natural language.
 
-Features Supported
-------------------
- - Finding an entity using a name
- - Finding an entity using a dictionary
- - Finding a relationship using a regex pattern (subject, verb and object)
- - Finding a relationship using a verb base form (subject, verb and object)
- - Finding a relationship using a semgrex pattern
- - Finding a relationship using a tokens regex pattern
+Find some useful links below:
 
-#### Deploying the feature
- Feature can be deployed as an OSGI bundle by putting the jar file of the component to SP_HOME/lib directory of SP 4.0.0 pack. 
+* <a target="_blank" href="https://github.com/wso2-extensions/siddhi-gpl-execution-nlp">Source code</a>
+* <a target="_blank" href="https://github.com/wso2-extensions/siddhi-gpl-execution-nlp/releases">Releases</a>
+* <a target="_blank" href="https://github.com/wso2-extensions/siddhi-gpl-execution-nlp/issues">Issue tracker</a>
+
+## Latest API Docs 
+
+Latest API Docs is <a target="_blank" href="https://wso2-extensions.github.io/siddhi-gpl-execution-nlp/api/4.0.2-SNAPSHOT">4.0.2-SNAPSHOT</a>.
+
+## How to use 
+
+**Using the extension in <a target="_blank" href="https://github.com/wso2/product-sp">WSO2 Stream Processor</a>**
+
+* You can use this extension in the latest <a target="_blank" href="https://github.com/wso2/product-sp/releases">WSO2 Stream Processor</a> that is a part of <a target="_blank" href="http://wso2.com/analytics?utm_source=gitanalytics&utm_campaign=gitanalytics_Jul17">WSO2 Analytics</a> offering, with editor, debugger and simulation support. 
+
+* This extension is shipped by default with WSO2 Stream Processor, if you wish to use an alternative version of this extension you can replace the component <a target="_blank" href="https://github.com/wso2-extensions/siddhi-gpl-execution-nlp/releases">jar</a> that can be found in the `<STREAM_PROCESSOR_HOME>/lib` directory.
+
+**Using the extension as a <a target="_blank" href="https://wso2.github.io/siddhi/documentation/running-as-a-java-library">java library</a>**
+
+* This extension can be added as a maven dependency along with other Siddhi dependencies to your project.
+
+```
+     <dependency>
+        <groupId>org.wso2.extension.siddhi.gpl.execution.nlp</groupId>
+        <artifactId>siddhi-gpl-execution-nlp</artifactId>
+        <version>x.x.x</version>
+     </dependency>
+```
+
+## Jenkins Build Status
+
+---
+
+|  Branch | Build Status |
+| :------ |:------------ | 
+| master  | [![Build Status](https://wso2.org/jenkins/job/siddhi/job/siddhi-gpl-execution-nlp/badge/icon)](https://wso2.org/jenkins/job/siddhi/job/siddhi-gpl-execution-nlp/) |
+
+---
+
+## Features
+
+* <a target="_blank" href="https://wso2-extensions.github.io/siddhi-gpl-execution-nlp/api/4.0.2-SNAPSHOT/#findrelationshipbyverb-stream-processor">findRelationshipByVerb</a> *(<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processors">Stream Processor</a>)*<br><div style="padding-left: 1em;"><p>This feature extracts the subject, object, and verb relationship for a given verb base form.</p></div>
+* <a target="_blank" href="https://wso2-extensions.github.io/siddhi-gpl-execution-nlp/api/4.0.2-SNAPSHOT/#findsemgrexpattern-stream-processor">findSemgrexPattern</a> *(<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processors">Stream Processor</a>)*<br><div style="padding-left: 1em;"><p>This feature extracts named nodes (through the Semgrex pattern) from the text stream.</p></div>
+* <a target="_blank" href="https://wso2-extensions.github.io/siddhi-gpl-execution-nlp/api/4.0.2-SNAPSHOT/#findtokensregexpattern-stream-processor">findTokensRegexPattern</a> *(<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processors">Stream Processor</a>)*<br><div style="padding-left: 1em;"><p>This feature extracts groups (defined in the Semgrex pattern) from the text stream.</p></div>
+* <a target="_blank" href="https://wso2-extensions.github.io/siddhi-gpl-execution-nlp/api/4.0.2-SNAPSHOT/#findnameentitytype-stream-processor">findNameEntityType</a> *(<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processors">Stream Processor</a>)*<br><div style="padding-left: 1em;"><p>This feature finds the entities in the text by the given type.</p></div>
+* <a target="_blank" href="https://wso2-extensions.github.io/siddhi-gpl-execution-nlp/api/4.0.2-SNAPSHOT/#findnameentitytypeviadictionary-stream-processor">findNameEntityTypeViaDictionary</a> *(<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processors">Stream Processor</a>)*<br><div style="padding-left: 1em;"><p>This feature finds the entities in the text that have been defined in the dictionary.</p></div>
+* <a target="_blank" href="https://wso2-extensions.github.io/siddhi-gpl-execution-nlp/api/4.0.2-SNAPSHOT/#findrelationshipbyregex-stream-processor">findRelationshipByRegex</a> *(<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processors">Stream Processor</a>)*<br><div style="padding-left: 1em;"><p>This feature extracts subject, object and verb from the text stream that matches the named nodes of the Semgrex pattern.</p></div>
 
 ## How to Contribute
-* Please report issues at [Siddhi Github Issue Tacker](https://github.com/wso2-extensions/siddhi-gpl-execution-nlp)
-* Send your bug fixes pull requests to [master branch](https://github.com/wso2-extensions/siddhi-gpl-execution-nlp/tree/master) 
-
+ 
+  * Please report issues at <a target="_blank" href="https://github.com/wso2-extensions/siddhi-gpl-execution-nlp/issues">GitHub Issue Tracker</a>.
+  
+  * Send your contributions as pull requests to <a target="_blank" href="https://github.com/wso2-extensions/siddhi-gpl-execution-nlp/tree/master">master branch</a>. 
+ 
 ## Contact us 
-Siddhi developers can be contacted via the mailing lists:
-  * Carbon Developers List : dev@wso2.org
-  * Carbon Architecture List : architecture@wso2.org
 
-**We welcome your feedback and contribution.**
+ * Post your questions with the <a target="_blank" href="http://stackoverflow.com/search?q=siddhi">"Siddhi"</a> tag in <a target="_blank" href="http://stackoverflow.com/search?q=siddhi">Stackoverflow</a>. 
+ 
+ * Siddhi developers can be contacted via the mailing lists:
+ 
+    Developers List   : [dev@wso2.org](mailto:dev@wso2.org)
+    
+    Architecture List : [architecture@wso2.org](mailto:architecture@wso2.org)
+ 
+## Support 
 
-Siddhi SP Team
+* We are committed to ensuring support for this extension in production. Our unique approach ensures that all support leverages our open development methodology and is provided by the very same engineers who build the technology. 
 
-## API Docs:
-
-1. <a href="./api/4.0.1-SNAPSHOT">4.0.1-SNAPSHOT</a>
+* For more details and to take advantage of this unique opportunity contact us via <a target="_blank" href="http://wso2.com/support?utm_source=gitanalytics&utm_campaign=gitanalytics_Jul17">http://wso2.com/support/</a>. 

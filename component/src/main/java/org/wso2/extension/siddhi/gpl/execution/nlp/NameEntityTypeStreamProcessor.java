@@ -57,7 +57,7 @@ import java.util.Properties;
 @Extension(
         name = "findNameEntityType",
         namespace = "nlp",
-        description = "This extension finds the entities in the text by the given type.",
+        description = "This feature finds the entities in the text by the given type.",
         parameters = {
                 @Parameter(
                         name = "entity.type",

@@ -63,7 +63,7 @@ import java.util.regex.Pattern;
 @Extension(
         name = "findSemgrexPattern",
         namespace = "nlp",
-        description = "This extension extracts named nodes (through the Semgrex pattern) from the text stream.",
+        description = "This feature extracts named nodes (through the Semgrex pattern) from the text stream.",
         parameters = {
                 @Parameter(
                         name = "regex",

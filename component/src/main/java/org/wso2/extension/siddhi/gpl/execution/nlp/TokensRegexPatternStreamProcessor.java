@@ -56,7 +56,7 @@ import java.util.Properties;
 @Extension(
         name = "findTokensRegexPattern",
         namespace = "nlp",
-        description = "This extension extracts groups (defined in the Semgrex pattern) from the text stream.",
+        description = "This feature extracts groups (defined in the Semgrex pattern) from the text stream.",
         parameters = {
                 @Parameter(
                         name = "regex",

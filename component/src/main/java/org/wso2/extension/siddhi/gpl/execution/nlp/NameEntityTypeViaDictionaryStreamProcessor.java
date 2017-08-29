@@ -53,7 +53,7 @@ import java.util.Map;
 @Extension(
         name = "findNameEntityTypeViaDictionary",
         namespace = "nlp",
-        description = "This extension finds the entities in the text that have been defined in the dictionary.",
+        description = "This feature finds the entities in the text that have been defined in the dictionary.",
         parameters = {
                 @Parameter(
                         name = "entity.type",
