@@ -64,7 +64,7 @@ import java.util.regex.Pattern;
 @Extension(
         name = "findRelationshipByRegex",
         namespace = "nlp",
-        description = "This extension extracts subject, object and verb from the text stream that matches the named " +
+        description = "This feature extracts subject, object and verb from the text stream that matches the named " +
                 "nodes of the Semgrex pattern.",
         parameters = {
                 @Parameter(

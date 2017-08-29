@@ -63,7 +63,7 @@ import java.util.Set;
 @Extension(
         name = "findRelationshipByVerb",
         namespace = "nlp",
-        description = "This extension extracts the subject, object, and verb relationship for a given verb base form.",
+        description = "This feature extracts the subject, object, and verb relationship for a given verb base form.",
         parameters = {
                 @Parameter(
                         name = "verb",
