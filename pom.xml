@@ -50,6 +50,7 @@
         <stanford-nlp.version>3.6.0.wso2v1</stanford-nlp.version>
         <testng.version>6.11</testng.version>
         <jollyday.version>0.4.7</jollyday.version>
+        <jacoco.plugin.version>0.7.8</jacoco.plugin.version>
     </properties>
 
     <scm>
@@ -119,6 +120,15 @@
         </dependencies>
     </dependencyManagement>
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${jacoco.plugin.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.wso2.siddhi</groupId>
