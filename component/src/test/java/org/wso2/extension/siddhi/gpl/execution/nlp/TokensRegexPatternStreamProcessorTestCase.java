@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,7 +87,7 @@ public class TokensRegexPatternStreamProcessorTestCase extends NlpTransformProce
 
     }
 
-    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void testQueryCreationExceptionInvalidNoOfParams() {
         logger.info("Test: QueryCreationException at Invalid No Of Params");
         siddhiManager.createSiddhiAppRuntime(defineStream + "from TokenRegexPatternIn#nlp:findTokensRegexPattern" +
@@ -96,7 +96,7 @@ public class TokensRegexPatternStreamProcessorTestCase extends NlpTransformProce
                 "        insert into TokenRegexPatternResult;\n");
     }
 
-    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void testQueryCreationExceptionRegexCannotParse() {
         logger.info("Test: QueryCreationException at Regex parsing");
         siddhiManager.createSiddhiAppRuntime(defineStream + "from TokenRegexPatternIn#nlp:findTokensRegexPattern" +

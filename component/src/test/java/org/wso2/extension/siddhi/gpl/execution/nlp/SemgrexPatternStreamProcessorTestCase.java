@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,7 +85,7 @@ public class SemgrexPatternStreamProcessorTestCase extends NlpTransformProcessor
         assertNotEquals(0, outputEvents.size(), "Returns an empty event array");
     }
 
-    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void testQueryCreationExceptionInvalidNoOfParams() {
         logger.info("Test: QueryCreationException at Invalid No Of Params");
         siddhiManager.createSiddhiAppRuntime(defineStream + "from SemgrexPatternIn#nlp:findSemgrexPattern" +
@@ -94,7 +94,7 @@ public class SemgrexPatternStreamProcessorTestCase extends NlpTransformProcessor
                 "        insert into FindSemgrexPatternResult;\n");
     }
 
-    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void testQueryCreationExceptionRegexCannotParse() {
         logger.info("Test: QueryCreationException at Regex parsing");
         siddhiManager.createSiddhiAppRuntime(defineStream + "from SemgrexPatternIn#nlp:findSemgrexPattern" +
