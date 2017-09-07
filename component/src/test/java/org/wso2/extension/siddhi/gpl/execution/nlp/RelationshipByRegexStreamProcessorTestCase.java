@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,7 +85,7 @@ public class RelationshipByRegexStreamProcessorTestCase extends NlpTransformProc
         assertNotEquals(0, outputEvents.size(), "Returns an empty event array");
     }
 
-    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void testQueryCreationExceptionInvalidNoOfParams() {
         logger.info("Test: QueryCreationException at Invalid No Of Params");
         siddhiManager.createSiddhiAppRuntime(defineStream +
@@ -95,7 +95,7 @@ public class RelationshipByRegexStreamProcessorTestCase extends NlpTransformProc
                 "        insert into FindRelationshipByRegexResult;\n");
     }
 
-    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void testQueryCreationExceptionRegexNotContainVerb() {
         logger.info("Test: QueryCreationException at Regex does not contain Verb");
         siddhiManager.createSiddhiAppRuntime(defineStream +
@@ -105,7 +105,7 @@ public class RelationshipByRegexStreamProcessorTestCase extends NlpTransformProc
                 "        insert into FindRelationshipByRegexResult;\n");
     }
 
-    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void testQueryCreationExceptionRegexNotContainSubject() {
         logger.info("Test: QueryCreationException at Regex does not contain Subject");
         siddhiManager.createSiddhiAppRuntime(defineStream +
@@ -115,7 +115,7 @@ public class RelationshipByRegexStreamProcessorTestCase extends NlpTransformProc
                 "        insert into FindRelationshipByRegexResult;\n");
     }
 
-    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void testQueryCreationExceptionRegexNotContainObject() {
         logger.info("Test: QueryCreationException at Regex does not contain Object");
         siddhiManager.createSiddhiAppRuntime(defineStream +
@@ -125,7 +125,7 @@ public class RelationshipByRegexStreamProcessorTestCase extends NlpTransformProc
                 "        insert into FindRelationshipByRegexResult;\n");
     }
 
-    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void testQueryCreationExceptionCannotParseRegex() {
         logger.info("Test: QueryCreationException at Regex does not contain Object");
         siddhiManager.createSiddhiAppRuntime(defineStream +
@@ -135,7 +135,7 @@ public class RelationshipByRegexStreamProcessorTestCase extends NlpTransformProc
                 "        insert into FindRelationshipByRegexResult;\n");
     }
 
-    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void testQueryCreationExceptionRegexTypeMismatch() {
         logger.info("Test: QueryCreationException at Regex parsing");
         siddhiManager.createSiddhiAppRuntime(defineStream +

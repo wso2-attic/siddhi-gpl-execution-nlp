@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.query.api.exception.SiddhiAppValidationException;
+import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -150,7 +150,7 @@ public class NameEntityTypeViaDictionaryStreamProcessorTestCase extends NlpTrans
         assertOutput(outputEvents, expectedMatches, matchedInStreamIndices, data);
     }
 
-    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void testQueryCreationExceptionInvalidNoOfParams() {
         logger.info("Test: QueryCreationException at Invalid No Of Params");
         siddhiManager.createSiddhiAppRuntime(defineStream +
@@ -161,7 +161,7 @@ public class NameEntityTypeViaDictionaryStreamProcessorTestCase extends NlpTrans
                 "        insert into FindNameEntityTypeViaDictionaryResult;\n");
     }
 
-    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void testQueryCreationExceptionTypeMismatchEntityType() {
         logger.info("Test: QueryCreationException at EntityType type mismatch");
         siddhiManager.createSiddhiAppRuntime(defineStream +
@@ -172,7 +172,7 @@ public class NameEntityTypeViaDictionaryStreamProcessorTestCase extends NlpTrans
                 "        insert into FindNameEntityTypeViaDictionaryResult;\n");
     }
 
-    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void testQueryCreationExceptionInvalidFilePath() {
         logger.info("Test: QueryCreationException at Invalid file path");
         siddhiManager.createSiddhiAppRuntime(defineStream +
@@ -184,7 +184,7 @@ public class NameEntityTypeViaDictionaryStreamProcessorTestCase extends NlpTrans
 
     }
 
-    @Test(expectedExceptions = SiddhiAppValidationException.class)
+    @Test(expectedExceptions = SiddhiAppCreationException.class)
     public void testQueryCreationExceptionUndefinedEntityType() {
         logger.info("Test: QueryCreationException at undefined EntityType");
         siddhiManager.createSiddhiAppRuntime(defineStream +
