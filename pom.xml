@@ -51,6 +51,8 @@
         <testng.version>6.11</testng.version>
         <jollyday.version>0.4.7</jollyday.version>
         <jacoco.plugin.version>0.7.9</jacoco.plugin.version>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <scm>
