@@ -12,7 +12,7 @@ Find some useful links below:
 
 ## Latest API Docs 
 
-Latest API Docs is <a target="_blank" href="https://wso2-extensions.github.io/siddhi-gpl-execution-nlp/api/4.0.2-SNAPSHOT">4.0.2-SNAPSHOT</a>.
+Latest API Docs is <a target="_blank" href="https://wso2-extensions.github.io/siddhi-gpl-execution-nlp/api/4.0.4">4.0.4</a>.
 
 ## How to use 
 
@@ -46,12 +46,6 @@ Latest API Docs is <a target="_blank" href="https://wso2-extensions.github.io/si
 
 ## Features
 
-* <a target="_blank" href="https://wso2-extensions.github.io/siddhi-gpl-execution-nlp/api/4.0.2-SNAPSHOT/#findrelationshipbyverb-stream-processor">findRelationshipByVerb</a> *(<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processors">Stream Processor</a>)*<br><div style="padding-left: 1em;"><p>This feature extracts the subject, object, and verb relationship for a given verb base form.</p></div>
-* <a target="_blank" href="https://wso2-extensions.github.io/siddhi-gpl-execution-nlp/api/4.0.2-SNAPSHOT/#findsemgrexpattern-stream-processor">findSemgrexPattern</a> *(<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processors">Stream Processor</a>)*<br><div style="padding-left: 1em;"><p>This feature extracts named nodes (through the Semgrex pattern) from the text stream.</p></div>
-* <a target="_blank" href="https://wso2-extensions.github.io/siddhi-gpl-execution-nlp/api/4.0.2-SNAPSHOT/#findtokensregexpattern-stream-processor">findTokensRegexPattern</a> *(<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processors">Stream Processor</a>)*<br><div style="padding-left: 1em;"><p>This feature extracts groups (defined in the Semgrex pattern) from the text stream.</p></div>
-* <a target="_blank" href="https://wso2-extensions.github.io/siddhi-gpl-execution-nlp/api/4.0.2-SNAPSHOT/#findnameentitytype-stream-processor">findNameEntityType</a> *(<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processors">Stream Processor</a>)*<br><div style="padding-left: 1em;"><p>This feature finds the entities in the text by the given type.</p></div>
-* <a target="_blank" href="https://wso2-extensions.github.io/siddhi-gpl-execution-nlp/api/4.0.2-SNAPSHOT/#findnameentitytypeviadictionary-stream-processor">findNameEntityTypeViaDictionary</a> *(<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processors">Stream Processor</a>)*<br><div style="padding-left: 1em;"><p>This feature finds the entities in the text that have been defined in the dictionary.</p></div>
-* <a target="_blank" href="https://wso2-extensions.github.io/siddhi-gpl-execution-nlp/api/4.0.2-SNAPSHOT/#findrelationshipbyregex-stream-processor">findRelationshipByRegex</a> *(<a target="_blank" href="https://wso2.github.io/siddhi/documentation/siddhi-4.0/#stream-processors">Stream Processor</a>)*<br><div style="padding-left: 1em;"><p>This feature extracts subject, object and verb from the text stream that matches the named nodes of the Semgrex pattern.</p></div>
 
 ## How to Contribute
  
