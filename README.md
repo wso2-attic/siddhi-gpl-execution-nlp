@@ -20,7 +20,7 @@ Latest API Docs is <a target="_blank" href="https://wso2-extensions.github.io/si
 
 * You can use this extension in the latest <a target="_blank" href="https://github.com/wso2/product-sp/releases">WSO2 Stream Processor</a> that is a part of <a target="_blank" href="http://wso2.com/analytics?utm_source=gitanalytics&utm_campaign=gitanalytics_Jul17">WSO2 Analytics</a> offering, with editor, debugger and simulation support. 
 
-* You can use  this extension after copying the component <a target="_blank" href="https://github.com/wso2-extensions/siddhi-gpl-execution-nlp/releases">jar</a> to the `<STREAM_PROCESSOR_HOME>/lib` directory.
+* You can use  this extension after copying the component <a target="_blank" href="https://maven.wso2.org/nexus/content/groups/wso2-public/org/wso2/extension/siddhi/gpl/execution/nlp/siddhi-gpl-execution-nlp/">jar</a> to the `<STREAM_PROCESSOR_HOME>/lib` directory.
 
 **Using the extension as a <a target="_blank" href="https://wso2.github.io/siddhi/documentation/running-as-a-java-library">java library</a>**
 
