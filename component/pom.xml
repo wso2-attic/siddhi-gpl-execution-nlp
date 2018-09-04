@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.wso2.extension.siddhi.gpl.execution.nlp</groupId>
         <artifactId>siddhi-gpl-execution-nlp-parent</artifactId>
-        <version>4.0.15-SNAPSHOT</version>
+        <version>4.0.15</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
