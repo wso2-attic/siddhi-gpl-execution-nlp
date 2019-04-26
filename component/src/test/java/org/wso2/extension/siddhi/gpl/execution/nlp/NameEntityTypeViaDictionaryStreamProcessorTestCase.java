@@ -17,11 +17,11 @@
 
 package org.wso2.extension.siddhi.gpl.execution.nlp;
 
+import io.siddhi.core.event.Event;
+import io.siddhi.core.exception.SiddhiAppCreationException;
 import org.apache.log4j.Logger;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.siddhi.core.event.Event;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 
 import java.io.File;
 import java.nio.file.Paths;

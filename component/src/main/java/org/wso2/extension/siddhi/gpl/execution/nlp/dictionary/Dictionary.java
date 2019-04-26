@@ -17,9 +17,9 @@
 
 package org.wso2.extension.siddhi.gpl.execution.nlp.dictionary;
 
+import io.siddhi.core.exception.SiddhiAppCreationException;
 import org.apache.log4j.Logger;
 import org.wso2.extension.siddhi.gpl.execution.nlp.utility.Constants;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
 import org.xml.sax.SAXException;
 
 import java.io.File;

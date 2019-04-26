@@ -27,7 +27,7 @@
 
     <groupId>org.wso2.extension.siddhi.gpl.execution.nlp</groupId>
     <artifactId>siddhi-gpl-execution-nlp-parent</artifactId>
-    <version>4.0.17-SNAPSHOT</version>
+    <version>5.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Siddhi Gpl Execution NLP Extension Parent</name>
     <url>http://wso2.org</url>
@@ -45,7 +45,7 @@
     </profiles>
 
     <properties>
-        <siddhi.version>4.2.17</siddhi.version>
+        <siddhi.version>5.0.0</siddhi.version>
         <log4j.version>1.2.17.wso2v1</log4j.version>
         <stanford-nlp.version>3.6.0.wso2v1</stanford-nlp.version>
         <testng.version>6.11</testng.version>
@@ -66,17 +66,17 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.wso2.siddhi</groupId>
+                <groupId>io.siddhi</groupId>
                 <artifactId>siddhi-core</artifactId>
                 <version>${siddhi.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.siddhi</groupId>
+                <groupId>io.siddhi</groupId>
                 <artifactId>siddhi-query-compiler</artifactId>
                 <version>${siddhi.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.wso2.siddhi</groupId>
+                <groupId>io.siddhi</groupId>
                 <artifactId>siddhi-query-api</artifactId>
                 <version>${siddhi.version}</version>
             </dependency>

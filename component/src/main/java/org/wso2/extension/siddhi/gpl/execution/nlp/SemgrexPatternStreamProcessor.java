@@ -26,26 +26,31 @@ import edu.stanford.nlp.semgraph.semgrex.SemgrexMatcher;
 import edu.stanford.nlp.semgraph.semgrex.SemgrexParseException;
 import edu.stanford.nlp.semgraph.semgrex.SemgrexPattern;
 import edu.stanford.nlp.util.CoreMap;
+import io.siddhi.annotation.Example;
+import io.siddhi.annotation.Extension;
+import io.siddhi.annotation.Parameter;
+import io.siddhi.annotation.ReturnAttribute;
+import io.siddhi.annotation.util.DataType;
+import io.siddhi.core.config.SiddhiQueryContext;
+import io.siddhi.core.event.ComplexEventChunk;
+import io.siddhi.core.event.stream.MetaStreamEvent;
+import io.siddhi.core.event.stream.StreamEvent;
+import io.siddhi.core.event.stream.StreamEventCloner;
+import io.siddhi.core.event.stream.holder.StreamEventClonerHolder;
+import io.siddhi.core.event.stream.populater.ComplexEventPopulater;
+import io.siddhi.core.exception.SiddhiAppCreationException;
+import io.siddhi.core.executor.ConstantExpressionExecutor;
+import io.siddhi.core.executor.ExpressionExecutor;
+import io.siddhi.core.executor.VariableExpressionExecutor;
+import io.siddhi.core.query.processor.ProcessingMode;
+import io.siddhi.core.query.processor.Processor;
+import io.siddhi.core.query.processor.stream.StreamProcessor;
+import io.siddhi.core.util.config.ConfigReader;
+import io.siddhi.core.util.snapshot.state.State;
+import io.siddhi.core.util.snapshot.state.StateFactory;
+import io.siddhi.query.api.definition.AbstractDefinition;
+import io.siddhi.query.api.definition.Attribute;
 import org.apache.log4j.Logger;
-import org.wso2.siddhi.annotation.Example;
-import org.wso2.siddhi.annotation.Extension;
-import org.wso2.siddhi.annotation.Parameter;
-import org.wso2.siddhi.annotation.ReturnAttribute;
-import org.wso2.siddhi.annotation.util.DataType;
-import org.wso2.siddhi.core.config.SiddhiAppContext;
-import org.wso2.siddhi.core.event.ComplexEventChunk;
-import org.wso2.siddhi.core.event.stream.StreamEvent;
-import org.wso2.siddhi.core.event.stream.StreamEventCloner;
-import org.wso2.siddhi.core.event.stream.populater.ComplexEventPopulater;
-import org.wso2.siddhi.core.exception.SiddhiAppCreationException;
-import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
-import org.wso2.siddhi.core.executor.ExpressionExecutor;
-import org.wso2.siddhi.core.executor.VariableExpressionExecutor;
-import org.wso2.siddhi.core.query.processor.Processor;
-import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
-import org.wso2.siddhi.core.util.config.ConfigReader;
-import org.wso2.siddhi.query.api.definition.AbstractDefinition;
-import org.wso2.siddhi.query.api.definition.Attribute;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -106,7 +111,7 @@ import java.util.regex.Pattern;
                 )
         }
 )
-public class SemgrexPatternStreamProcessor extends StreamProcessor {
+public class SemgrexPatternStreamProcessor extends StreamProcessor<State> {
 
     private static Logger logger = Logger.getLogger(SemgrexPatternStreamProcessor.class);
     /**
@@ -120,6 +125,8 @@ public class SemgrexPatternStreamProcessor extends StreamProcessor {
     private SemgrexPattern regexPattern;
     private StanfordCoreNLP pipeline;
     private Map<String, Integer> namedElementParamPositions = new HashMap<String, Integer>();
+    private ArrayList<Attribute> attributes = new ArrayList<Attribute>(1);
+
 
     private synchronized void initPipeline() {
         logger.info("Initializing Annotator pipeline ...");
@@ -131,9 +138,11 @@ public class SemgrexPatternStreamProcessor extends StreamProcessor {
     }
 
     @Override
-    protected List<Attribute> init(AbstractDefinition inputDefinition,
-                                   ExpressionExecutor[] attributeExpressionExecutors,
-                                   ConfigReader configReader, SiddhiAppContext siddhiAppContext) {
+    protected StateFactory<State> init(MetaStreamEvent metaStreamEvent, AbstractDefinition inputDefinition,
+                                       ExpressionExecutor[] attributeExpressionExecutors, ConfigReader configReader,
+                                       StreamEventClonerHolder streamEventClonerHolder,
+                                       boolean outputExpectsExpiredEvents, boolean findToBeExecuted,
+                                       SiddhiQueryContext siddhiQueryContext) {
         if (logger.isDebugEnabled()) {
             logger.debug("Initializing Query ...");
         }
@@ -177,7 +186,6 @@ public class SemgrexPatternStreamProcessor extends StreamProcessor {
 
         initPipeline();
 
-        ArrayList<Attribute> attributes = new ArrayList<Attribute>(1);
         attributes.add(new Attribute("match", Attribute.Type.STRING));
 
 
@@ -195,12 +203,14 @@ public class SemgrexPatternStreamProcessor extends StreamProcessor {
             attributes.add(new Attribute(namedElement, Attribute.Type.STRING));
             namedElementParamPositions.put(namedElement, attributeCount++);
         }
-        return attributes;
+        return null;
     }
+
 
     @Override
     protected void process(ComplexEventChunk<StreamEvent> streamEventChunk, Processor nextProcessor,
-                           StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater) {
+                           StreamEventCloner streamEventCloner, ComplexEventPopulater complexEventPopulater,
+                           State state) {
         synchronized (this) {
             while (streamEventChunk.hasNext()) {
                 StreamEvent streamEvent = streamEventChunk.next();
@@ -250,13 +260,15 @@ public class SemgrexPatternStreamProcessor extends StreamProcessor {
 
     }
 
+
+
     @Override
-    public Map<String, Object> currentState() {
-        return new HashMap<>();
+    public List<Attribute> getReturnAttributes() {
+        return attributes;
     }
 
     @Override
-    public void restoreState(Map<String, Object> state) {
-
+    public ProcessingMode getProcessingMode() {
+        return ProcessingMode.BATCH;
     }
 }
