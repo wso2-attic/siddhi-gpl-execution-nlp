@@ -17,14 +17,14 @@
 
 package org.wso2.extension.siddhi.gpl.execution.nlp.utility;
 
-import org.wso2.siddhi.query.api.expression.Expression;
-import org.wso2.siddhi.query.api.expression.Variable;
-import org.wso2.siddhi.query.api.expression.constant.BoolConstant;
-import org.wso2.siddhi.query.api.expression.constant.DoubleConstant;
-import org.wso2.siddhi.query.api.expression.constant.FloatConstant;
-import org.wso2.siddhi.query.api.expression.constant.IntConstant;
-import org.wso2.siddhi.query.api.expression.constant.LongConstant;
-import org.wso2.siddhi.query.api.expression.constant.StringConstant;
+import io.siddhi.query.api.expression.Expression;
+import io.siddhi.query.api.expression.Variable;
+import io.siddhi.query.api.expression.constant.BoolConstant;
+import io.siddhi.query.api.expression.constant.DoubleConstant;
+import io.siddhi.query.api.expression.constant.FloatConstant;
+import io.siddhi.query.api.expression.constant.IntConstant;
+import io.siddhi.query.api.expression.constant.LongConstant;
+import io.siddhi.query.api.expression.constant.StringConstant;
 
 /**
  * Created by malithi on 9/5/14.
